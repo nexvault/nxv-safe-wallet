@@ -23,7 +23,8 @@ contract MultiSendCallOnly {
      *         If the calling method (e.g. execTransaction) received ETH this would revert otherwise
      */
     function multiSend(bytes memory transactions) public payable {
-        // solhint-disable-next-line no-inline-assembly
+        /* solhint-disable no-inline-assembly */
+        /// @solidity memory-safe-assembly
         assembly {
             let length := mload(transactions)
             let i := 0x20
@@ -55,11 +56,14 @@ contract MultiSendCallOnly {
                     revert(0, 0)
                 }
                 if eq(success, 0) {
-                    revert(0, 0)
+                    let errorLength := returndatasize()
+                    returndatacopy(0, 0, errorLength)
+                    revert(0, errorLength)
                 }
                 // Next entry starts at 85 byte + data length
                 i := add(i, add(0x55, dataLength))
             }
         }
+        /* solhint-enable no-inline-assembly */
     }
 }
