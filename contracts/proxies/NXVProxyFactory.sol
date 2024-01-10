@@ -4,6 +4,17 @@ pragma solidity >=0.7.0 <0.9.0;
 import {NXVProxy} from "./NXVProxy.sol";
 import {IProxyCreationCallback} from "./IProxyCreationCallback.sol";
 
+interface INXV {
+        function execTransaction(
+        address to,
+        uint256 value,
+        bytes calldata data,
+        uint8 operation,
+        uint256 nonce,
+        bytes memory signatures
+    ) external payable returns (bool success);
+}
+
 /**
  * @title Proxy Factory - Allows to create a new proxy contract and execute a message call to the new proxy within one transaction.
  * @author Stefan George - @Georgi87
@@ -98,15 +109,15 @@ contract NXVProxyFactory {
         address _singleton, 
         bytes memory initializer,
         uint256 saltNonce,
-        address destination,
+        address to,
         uint256 value,
         bytes calldata data,
         uint8 operation,
         uint256 nonce,
         bytes memory signatures
-    ) public payable returns (MultiSigWalletProxy wallet, bool success) {
-        wallet = createMultiSigWallet(_singleton, initializer, saltNonce);
-        success = IMultiSigWallet(address(wallet)).batchSignature(destination, value, data, operation, nonce, signatures);
+    ) public payable returns (NXVProxy wallet, bool success) {
+        wallet = createProxyWithNonce(_singleton, initializer, saltNonce);
+        success = INXV(address(wallet)).execTransaction(to, value, data, operation, nonce, signatures);
     }
 
     function calculateMultiSigWalletAddress(
@@ -115,7 +126,7 @@ contract NXVProxyFactory {
         uint256 saltNonce
     ) public view returns (address) {
         bytes32 salt = keccak256(abi.encodePacked(keccak256(initializer), saltNonce));
-        bytes memory deploymentData = abi.encodePacked(type(MultiSigWalletProxy).creationCode, uint256(uint160(_singleton)));
+        bytes memory deploymentData = abi.encodePacked(type(NXVProxy).creationCode, uint256(uint160(_singleton)));
         bytes32 hash = keccak256(abi.encodePacked(
             bytes1(0xff),
             address(this),

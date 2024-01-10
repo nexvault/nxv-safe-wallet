@@ -6,7 +6,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { deployer } = await getNamedAccounts();
     const { deploy } = deployments;
 
-    await deploy("SafeL2", {
+    await deploy("NXV", {
         from: deployer,
         args: [],
         log: true,
@@ -14,5 +14,5 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     });
 };
 
-deploy.tags = ["l2", "l2-suite"];
+deploy.tags = ["singleton", "main-suite"];
 export default deploy;

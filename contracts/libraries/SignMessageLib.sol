@@ -2,7 +2,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 import {NXVStorage} from "./NXVStorage.sol";
-import {MultiSigWallet} from "../MultiSigWallet.sol";
+import {NXV} from "../NXV.sol";
 
 /**
  * @title SignMessageLib - Allows to sign messages on-chain by writing the signed message hashes on-chain.
@@ -33,6 +33,6 @@ contract SignMessageLib is NXVStorage {
      */
     function getMessageHash(bytes memory message) public view returns (bytes32) {
         bytes32 nxvMessageHash = keccak256(abi.encode(NXV_MSG_TYPEHASH, keccak256(message)));
-        return keccak256(abi.encodePacked(bytes1(0x19), bytes1(0x01), MultiSigWallet(payable(address(this))).domainSeparator(), nxvMessageHash));
+        return keccak256(abi.encodePacked(bytes1(0x19), bytes1(0x01), NXV(payable(address(this))).domainSeparator(), nxvMessageHash));
     }
 }

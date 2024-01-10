@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
+import {Executor} from "./base/Executor.sol";
 import {OwnerManager} from "./base/OwnerManager.sol";
 import {FallbackManager} from "./base/FallbackManager.sol";
 import {NativeCurrencyPaymentFallback} from "./common/NativeCurrencyPaymentFallback.sol";
@@ -32,6 +33,7 @@ import {SafeMath} from "./external/SafeMath.sol";
 contract NXV is
     Singleton,
     NativeCurrencyPaymentFallback,
+    Executor,
     OwnerManager,
     SignatureDecoder,
     ISignatureValidatorConstants,
@@ -81,12 +83,7 @@ contract NXV is
      *      If a proxy was created without setting up, anyone can call setup and claim the proxy.
      * @param _owners List of Safe owners.
      * @param _threshold Number of required confirmations for a Safe transaction.
-     * @param to Contract address for optional delegate call.
-     * @param data Data payload for optional delegate call.
      * @param fallbackHandler Handler for fallback calls to this contract
-     * @param paymentToken Token that should be used for the payment (0 is ETH)
-     * @param payment Value that should be paid
-     * @param paymentReceiver Address that should receive the payment (or 0 if tx.origin)
      */
     function setup(
         address[] calldata _owners,
@@ -110,11 +107,6 @@ contract NXV is
      * @param value Ether value of Safe transaction.
      * @param data Data payload of Safe transaction.
      * @param operation Operation type of Safe transaction.
-     * @param safeTxGas Gas that should be used for the Safe transaction.
-     * @param baseGas Gas costs that are independent of the transaction execution(e.g. base transaction fee, signature check, payment of the refund)
-     * @param gasPrice Gas price that should be used for the payment calculation.
-     * @param gasToken Token address (or 0 if ETH) that is used for the payment.
-     * @param refundReceiver Address of receiver of gas payment (or 0 if tx.origin).
      * @param signatures Signature data that should be verified.
      *                   Can be packed ECDSA signature ({bytes32 r}{bytes32 s}{uint8 v}), contract signature (EIP-1271) or approved hash.
      * @return success Boolean indicating transaction's success.
@@ -142,7 +134,7 @@ contract NXV is
         txNonces[nonce] = true;
         txExists[txHash] = true;
 
-        success = external_call(to, value, data, operation);
+        success = execute(to, value, data, operation, (gasleft() - 2500));
         require(success, "call-failed");
 
         emit ExecutionSuccess(txHash, nonce);
@@ -150,7 +142,7 @@ contract NXV is
 
     /**
      * @notice Checks whether the signature provided is valid for the provided data and hash. Reverts otherwise.
-     * @param dataHash Hash of the data (could be either a message hash or transaction hash)
+     * @param txHash Hash of the data (could be either a message hash or transaction hash)
      * @param data That should be signed (this is passed to an external validator contract)
      * @param signatures Signature data that should be verified.
      *                   Can be packed ECDSA signature ({bytes32 r}{bytes32 s}{uint8 v}), contract signature (EIP-1271) or approved hash.
@@ -167,7 +159,6 @@ contract NXV is
      * @notice Checks whether the signature provided is valid for the provided data and hash. Reverts otherwise.
      * @dev Since the EIP-1271 does an external call, be mindful of reentrancy attacks.
      * @param txHash Hash of the data (could be either a message hash or transaction hash)
-     * @param data That should be signed (this is passed to an external validator contract)
      * @param signatures Signature data that should be verified.
      *                   Can be packed ECDSA signature ({bytes32 r}{bytes32 s}{uint8 v}), contract signature (EIP-1271) or approved hash.
      * @param requiredSignatures Amount of required valid signatures.
@@ -226,11 +217,6 @@ contract NXV is
      * @param value Ether value.
      * @param data Data payload.
      * @param operation Operation type.
-     * @param safeTxGas Gas that should be used for the safe transaction.
-     * @param baseGas Gas costs for that are independent of the transaction execution(e.g. base transaction fee, signature check, payment of the refund)
-     * @param gasPrice Maximum gas price that should be used for this transaction.
-     * @param gasToken Token address (or 0 if ETH) that is used for the payment.
-     * @param refundReceiver Address of receiver of gas payment (or 0 if tx.origin).
      * @param _nonce Transaction nonce.
      * @return Transaction hash bytes.
      */
@@ -239,7 +225,7 @@ contract NXV is
         uint256 value,
         bytes calldata data,
         Enum.Operation operation,
-        uint256 nonce
+        uint256 _nonce
     ) private view returns (bytes memory) {
         bytes32 txHash = keccak256(
             abi.encode(
@@ -248,7 +234,7 @@ contract NXV is
                 value,
                 keccak256(data),
                 operation,
-                nonce
+                _nonce
             )
         );
         return abi.encodePacked(bytes1(0x19), bytes1(0x01), domainSeparator(), txHash);
@@ -260,11 +246,6 @@ contract NXV is
      * @param value Ether value.
      * @param data Data payload.
      * @param operation Operation type.
-     * @param safeTxGas Fas that should be used for the safe transaction.
-     * @param baseGas Gas costs for data used to trigger the safe transaction.
-     * @param gasPrice Maximum gas price that should be used for this transaction.
-     * @param gasToken Token address (or 0 if ETH) that is used for the payment.
-     * @param refundReceiver Address of receiver of gas payment (or 0 if tx.origin).
      * @param _nonce Transaction nonce.
      * @return Transaction hash.
      */
@@ -273,8 +254,8 @@ contract NXV is
         uint256 value,
         bytes calldata data,
         Enum.Operation operation,
-        uint256 nonce
+        uint256 _nonce
     ) public view returns (bytes32) {
-        return keccak256(encodeTransactionData(to, value, data, operation, nonce));
+        return keccak256(encodeTransactionData(to, value, data, operation, _nonce));
     }
 }

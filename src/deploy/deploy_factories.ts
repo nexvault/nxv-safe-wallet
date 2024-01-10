@@ -6,7 +6,7 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { deployer } = await getNamedAccounts();
     const { deploy } = deployments;
 
-    await deploy("SafeProxyFactory", {
+    await deploy("NXVProxyFactory", {
         from: deployer,
         args: [],
         log: true,

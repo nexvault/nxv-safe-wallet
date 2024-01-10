@@ -3,7 +3,7 @@ pragma solidity >=0.7.0 <0.9.0;
 
 import {TokenCallbackHandler} from "./TokenCallbackHandler.sol";
 import {ISignatureValidator} from "../interfaces/ISignatureValidator.sol";
-import {MultiSigWallet} from "../MultiSigWallet.sol";
+import {NXV} from "../NXV.sol";
 import {HandlerContext} from "./HandlerContext.sol";
 
 /**
@@ -25,7 +25,7 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
      * @return Message hash.
      */
     function getMessageHash(bytes memory message) public view returns (bytes32) {
-        return getMessageHashForNXV(MultiSigWallet(payable(msg.sender)), message);
+        return getMessageHashForNXV(NXV(payable(msg.sender)), message);
     }
 
     /**
@@ -34,7 +34,7 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
      * @param message Message that should be encoded.
      * @return Encoded message.
      */
-    function encodeMessageDataForNXV(MultiSigWallet nxv, bytes memory message) public view returns (bytes memory) {
+    function encodeMessageDataForNXV(NXV nxv, bytes memory message) public view returns (bytes memory) {
         bytes32 nxvMessageHash = keccak256(abi.encode(NXV_MSG_TYPEHASH, keccak256(message)));
         return abi.encodePacked(bytes1(0x19), bytes1(0x01), nxv.domainSeparator(), nxvMessageHash);
     }
@@ -45,8 +45,8 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
      * @param message Message that should be hashed.
      * @return Message hash.
      */
-    function getMessageHashForNXV(MultiSigWallet nxv, bytes memory message) public view returns (bytes32) {
-        return keccak256(encodeMessageDataForNXV(nxv, message);(nxv, message));
+    function getMessageHashForNXV(NXV nxv, bytes memory message) public view returns (bytes32) {
+        return keccak256(encodeMessageDataForNXV(nxv, message));
     }
 
     /**
@@ -57,7 +57,7 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
      */
     function isValidSignature(bytes32 _dataHash, bytes calldata _signature) public view override returns (bytes4) {
         // Caller should be a Safe
-        MultiSigWallet nxv = MultiSigWallet(payable(msg.sender));
+        NXV nxv = NXV(payable(msg.sender));
         bytes memory messageData = encodeMessageDataForNXV(nxv, abi.encode(_dataHash));
         bytes32 messageHash = keccak256(messageData);
         if (_signature.length == 0) {
@@ -159,7 +159,7 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
      * @param requiredSignatures Amount of required valid signatures.
      */
     function checkNSignatures(bytes32 dataHash, bytes memory, bytes memory signatures, uint256 requiredSignatures) public view {
-        MultiSigWallet(payable(_manager())).checkNSignatures(dataHash, "", signatures, requiredSignatures);
+        NXV(payable(_manager())).checkNSignatures(dataHash, "", signatures, requiredSignatures);
         // _manager() is the NXV address
     }
 }
