@@ -203,7 +203,7 @@ contract NXV is
         return keccak256(
             abi.encode(
                 EIP712DOMAIN_TYPEHASH,
-                keccak256("NXVWalet"), // name
+                keccak256("NXVWallet"), // name
                 keccak256("3"), // version
                 getChainId(),
                 address(this)

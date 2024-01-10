@@ -12,6 +12,13 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         log: true,
         deterministicDeployment: true,
     });
+
+    // await deploy("NXVProxy", {
+    //     from: deployer,
+    //     args: [],
+    //     log: true,
+    //     deterministicDeployment: true,
+    // });
 };
 
 deploy.tags = ["factory", "l2-suite", "main-suite"];

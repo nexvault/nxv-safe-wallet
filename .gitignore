@@ -12,9 +12,10 @@ solc
 coverage/
 coverage.json
 yarn-error.log
-.yarn/
+typechain-types
 
 # Certora Formal Verification related files
 .certora_internal
 .certora_recent_jobs.json
 .zip-output-url.txt
+node_modules
