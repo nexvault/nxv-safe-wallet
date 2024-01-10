@@ -41,7 +41,7 @@ describe("MultiSend", () => {
                 signers: [user1, user2],
             } = await setupTests();
 
-            const txs = [buildNXVTransaction({ destination: user2.address, operation: 2, nonce: 0 })];
+            const txs = [buildNXVTransaction({ to: user2.address, operation: 2, nonce: 0 })];
             const NXVTx = await buildMultiSendNXVTx(multiSend, txs, nonce);
 
             // await expect(executeTx(NXV, NXVTx, [await NXVApproveHash(user1, NXV, NXVTx, true)])).to.revertedWith("GS013");
@@ -70,7 +70,7 @@ describe("MultiSend", () => {
             const userBalance = await hre.ethers.provider.getBalance(user2.address);
             await expect(await hre.ethers.provider.getBalance(await NXV.getAddress())).to.be.deep.eq(ethers.parseEther("1"));
 
-            const txs: MetaTransaction[] = [buildNXVTransaction({ destination: user2.address, value: ethers.parseEther("1"), nonce: 0 })];
+            const txs: MetaTransaction[] = [buildNXVTransaction({ to: user2.address, value: ethers.parseEther("1"), nonce: 0 })];
             const NXVTx = await buildMultiSendNXVTx(multiSend, txs, nonce);
             await expect(executeTxWithSigners(NXV, NXVTx, [user1])).to.emit(NXV, "ExecutionSuccess");
 
@@ -89,8 +89,8 @@ describe("MultiSend", () => {
             await expect(await hre.ethers.provider.getBalance(await NXV.getAddress())).to.eq(ethers.parseEther("1"));
 
             const txs: MetaTransaction[] = [
-                buildNXVTransaction({ destination: user2.address, value: ethers.parseEther("1"), nonce: 0 }),
-                buildNXVTransaction({ destination: user2.address, value: ethers.parseEther("1"), nonce: 0 }),
+                buildNXVTransaction({ to: user2.address, value: ethers.parseEther("1"), nonce: 0 }),
+                buildNXVTransaction({ to: user2.address, value: ethers.parseEther("1"), nonce: 0 }),
             ];
             const NXVTx = await buildMultiSendNXVTx(multiSend, txs, nonce);
             await expect(executeTxWithSigners(NXV, NXVTx, [user1])).to.revertedWith("call-failed");
@@ -157,7 +157,7 @@ describe("MultiSend", () => {
             await expect(await hre.ethers.provider.getBalance(await NXV.getAddress())).to.eq(ethers.parseEther("1"));
 
             const txs: MetaTransaction[] = [
-                buildNXVTransaction({ destination: user2.address, value: ethers.parseEther("1"), nonce: 0 }),
+                buildNXVTransaction({ to: user2.address, value: ethers.parseEther("1"), nonce: 0 }),
                 await buildContractCall(storageSetter, "setStorage", ["0xbaddad"], 0),
             ];
             const NXVTx = await buildMultiSendNXVTx(multiSend, txs, nonce);
@@ -191,7 +191,7 @@ describe("MultiSend", () => {
 
             const txs: MetaTransaction[] = [
                 {
-                    destination: mockAddress,
+                    to: mockAddress,
                     value: 0,
                     data: triggerCalldata,
                     operation: 0,

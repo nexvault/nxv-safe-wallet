@@ -38,7 +38,7 @@ describe("HandlerContext", () => {
         } = await setup();
         const handlerAddress = await handler.getAddress();
         const NXVAddress = await NXV.getAddress();
-        await NXV.initialize([user1.address, user2.address], 1, handlerAddress);
+        await NXV.setup([user1.address, user2.address], 1, handlerAddress);
 
         const response = await user1.call({
             to: NXVAddress,

@@ -51,7 +51,7 @@ describe("ProxyFactory", () => {
             const { factory } = await setupTests();
             const randomAddress = ethers.getAddress(ethers.hexlify(ethers.randomBytes(20)));
             await expect(factory.createProxyWithNonce(randomAddress, "0x", saltNonce)).to.be.revertedWith(
-                "Singleton not deployed",
+                "Singleton contract not deployed",
             );
         });
 
@@ -67,7 +67,7 @@ describe("ProxyFactory", () => {
             const initCode = "0x";
             const proxyAddress = await calculateProxyAddress(factory, singletonAddress, initCode, saltNonce);
             await expect(factory.createProxyWithNonce(singletonAddress, initCode, saltNonce))
-                .to.emit(factory, "NewMultiSigWalletCreated")
+                .to.emit(factory, "ProxyCreation")
                 .withArgs(proxyAddress, singletonAddress);
             const proxy = singleton.attach(proxyAddress) as Contract;
 
@@ -86,7 +86,7 @@ describe("ProxyFactory", () => {
             const initCode = singleton.interface.encodeFunctionData("init", []);
             const proxyAddress = await calculateProxyAddress(factory, singletonAddress, initCode, saltNonce);
             await expect(factory.createProxyWithNonce(singletonAddress, initCode, saltNonce))
-                .to.emit(factory, "NewMultiSigWalletCreated")
+                .to.emit(factory, "ProxyCreation")
                 .withArgs(proxyAddress, singletonAddress);
             const proxy = singleton.attach(proxyAddress) as Contract;
             expect(await proxy.creator()).to.be.eq(factoryAddress);
@@ -103,7 +103,7 @@ describe("ProxyFactory", () => {
             const initCode = singleton.interface.encodeFunctionData("init", []);
             const proxyAddress = await calculateProxyAddress(factory, singletonAddress, initCode, saltNonce);
             await expect(factory.createProxyWithNonce(singletonAddress, initCode, saltNonce))
-                .to.emit(factory, "NewMultiSigWalletCreated")
+                .to.emit(factory, "ProxyCreation")
                 .withArgs(proxyAddress, singletonAddress);
             await expect(factory.createProxyWithNonce(singletonAddress, initCode, saltNonce)).to.be.revertedWith("Create2 call failed");
         });
@@ -114,7 +114,7 @@ describe("ProxyFactory", () => {
 
         it("should revert if singleton address is not a contract", async () => {
             const { factory } = await setupTests();
-            await expect(factory.createProxyWithNonce(AddressZero, "0x", saltNonce)).to.be.revertedWith("Singleton not deployed");
+            await expect(factory.createProxyWithNonce(AddressZero, "0x", saltNonce)).to.be.revertedWith("Singleton contract not deployed");
         });
 
         it("should revert with invalid initializer", async () => {
@@ -130,7 +130,7 @@ describe("ProxyFactory", () => {
             const initCode = "0x";
             const proxyAddress = await calculateProxyAddress(factory, singletonAddress, initCode, saltNonce);
             await expect(factory.createProxyWithNonce(singletonAddress, initCode, saltNonce))
-                .to.emit(factory, "NewMultiSigWalletCreated")
+                .to.emit(factory, "ProxyCreation")
                 .withArgs(proxyAddress, singletonAddress);
             const proxy = singleton.attach(proxyAddress) as Contract;
             expect(await proxy.creator()).to.be.eq(AddressZero);
@@ -147,7 +147,7 @@ describe("ProxyFactory", () => {
             const initCode = singleton.interface.encodeFunctionData("init", []);
             const proxyAddress = await calculateProxyAddress(factory, singletonAddress, initCode, saltNonce);
             await expect(factory.createProxyWithNonce(singletonAddress, initCode, saltNonce))
-                .to.emit(factory, "NewMultiSigWalletCreated")
+                .to.emit(factory, "ProxyCreation")
                 .withArgs(proxyAddress, singletonAddress);
             const proxy = singleton.attach(proxyAddress) as Contract;
             expect(await proxy.creator()).to.be.eq(factoryAddress);
@@ -163,7 +163,7 @@ describe("ProxyFactory", () => {
             const initCode = singleton.interface.encodeFunctionData("init", []);
             const proxyAddress = await calculateProxyAddress(factory, singletonAddress, initCode, saltNonce);
             await expect(factory.createProxyWithNonce(singletonAddress, initCode, saltNonce))
-                .to.emit(factory, "NewMultiSigWalletCreated")
+                .to.emit(factory, "ProxyCreation")
                 .withArgs(proxyAddress, singletonAddress);
             await expect(factory.createProxyWithNonce(singletonAddress, initCode, saltNonce)).to.be.revertedWith("Create2 call failed");
         });

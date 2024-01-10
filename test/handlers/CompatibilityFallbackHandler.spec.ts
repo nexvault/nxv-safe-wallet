@@ -107,7 +107,7 @@ describe("CompatibilityFallbackHandler", () => {
             const typedDataSig = {
                 signer: user1.address,
                 data: await user1.signTypedData(
-                    { name: "MultiSigWallet", version: "2", verifyingContract: validatorAddress, chainId: await chainId() },
+                    { name: "NXVWallet", version: "3", verifyingContract: validatorAddress, chainId: await chainId() },
                     EIP712_NXV_MESSAGE_TYPE,
                     { message: dataHash },
                 ),
@@ -139,13 +139,13 @@ describe("CompatibilityFallbackHandler", () => {
         it("should revert if target does not return domain separator", async () => {
             const { handler } = await setupTests();
             const handlerAddress = await handler.getAddress();
-            await expect(handler.getMessageHashForNxv(handlerAddress, "0xdead")).to.be.reverted;
+            await expect(handler.getMessageHashForNXV(handlerAddress, "0xdead")).to.be.reverted;
         });
 
         it("should generate the correct hash", async () => {
             const { handler, NXV } = await setupTests();
             const NXVAddress = await NXV.getAddress();
-            expect(await handler.getMessageHashForNxv(NXVAddress, "0xdead")).to.be.eq(
+            expect(await handler.getMessageHashForNXV(NXVAddress, "0xdead")).to.be.eq(
                 calculateNXVMessageHash(NXVAddress, "0xdead", await chainId()),
             );
         });

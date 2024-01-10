@@ -19,3 +19,4 @@ typechain-types
 .certora_recent_jobs.json
 .zip-output-url.txt
 node_modules
+certora/
