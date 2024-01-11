@@ -1,6 +1,6 @@
 import { task } from "hardhat/config";
 task('deploy-factory', 'Deploy a NXVProxyFactory')
-  .setAction(async (args, hre) => {
+  .setAction(async (hre) => {
   const NXVProxyFactory = await hre.ethers.getContractFactory('NXVProxyFactory');
   console.log('Deploying NXVProxyFactory...');
 
@@ -15,7 +15,7 @@ task('deploy-factory', 'Deploy a NXVProxyFactory')
 });
 
 task('deploy-NXVImplementation', 'Deploy a NXVImplementation')
-  .setAction(async (args, hre) => {
+  .setAction(async (hre) => {
   const NXV = await hre.ethers.getContractFactory("NXV");
 
   console.log('Deploying NXVImplementation...');
@@ -32,7 +32,7 @@ task('deploy-NXVImplementation', 'Deploy a NXVImplementation')
 });
 
 task('deploy-fallbackHandler', 'Deploy a FallbackHandler')
-  .setAction(async (args, hre) => {
+  .setAction(async (hre) => {
   const FallbackHandler = await hre.ethers.getContractFactory("CompatibilityFallbackHandler");
 
   console.log('Deploying CompatibilityFallbackHandler...');
@@ -48,7 +48,7 @@ task('deploy-fallbackHandler', 'Deploy a FallbackHandler')
 });
 
 task('deploy-multiSendCallOnly', 'Deploy MultiSendCallOnly')
-  .setAction(async (args, hre) => {
+  .setAction(async (hre) => {
   const MultiSendCallOnly = await hre.ethers.getContractFactory("MultiSendCallOnly");
 
   console.log('Deploying MultiSendCallOnly...');
@@ -64,7 +64,7 @@ task('deploy-multiSendCallOnly', 'Deploy MultiSendCallOnly')
 });
 
 task('deploy-multiSend', 'Deploy MultiSend')
-  .setAction(async (args, hre) => {
+  .setAction(async (hre) => {
   const MultiSend = await hre.ethers.getContractFactory("MultiSend");
 
   console.log('Deploying MultiSend...');
@@ -80,7 +80,7 @@ task('deploy-multiSend', 'Deploy MultiSend')
 });
 
 task('deploy-migration', 'Deploy NXVStorage and NXVMigration')
-  .setAction(async (args, hre) => {
+  .setAction(async (hre) => {
   const NXVMigration = await hre.ethers.getContractFactory("NXVMigration");
 
   console.log('Deploying NXVMigration...');
@@ -96,7 +96,7 @@ task('deploy-migration', 'Deploy NXVStorage and NXVMigration')
 });
 
 task('deploy-signMessageLib', 'Deploy signMessageLib')
-  .setAction(async (args, hre) => {
+  .setAction(async (hre) => {
   const SignMessageLib = await hre.ethers.getContractFactory("SignMessageLib");
 
   console.log('Deploying SignMessageLib...');
