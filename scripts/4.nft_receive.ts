@@ -54,7 +54,7 @@ async function main() {
     );
 
     const txData = {
-        destination: await nftContract.getAddress(),
+        to: await nftContract.getAddress(),
         value: 0,
         data: data,
         operation: 0,
@@ -63,7 +63,7 @@ async function main() {
 
     const sortedSignatures = await signTypedData(txData, walletAddress);
 
-    const transaction = await nxv.batchSignature(
+    const transaction = await nxv.execTransaction(
         ...Object.values(txData),
         sortedSignatures,
         // { gasPrice: ethers.utils.parseUnits('2', 'gwei') }

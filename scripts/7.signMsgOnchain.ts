@@ -28,7 +28,7 @@ async function main() {
     console.log(callData);
 
     const txData = {
-        destination: signMessage.target,
+        to: signMessage.target,
         value: 0,
         data: callData,
         operation: 1,
@@ -39,7 +39,7 @@ async function main() {
 
     const sortedSignatures = await signTypedData(txData, walletAddress);
 
-    const transaction = await nxv.batchSignature(
+    const transaction = await nxv.execTransaction(
         ...Object.values(txData),
         sortedSignatures,
         // { gasPrice: ethers.utils.parseUnits('2', 'gwei') }

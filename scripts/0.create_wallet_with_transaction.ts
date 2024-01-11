@@ -20,7 +20,7 @@ async function main() {
     const singletonAddress: Address = await singleton.getAddress(); // Address of the singleton
 
     // const initializer = ethers.utils.toUtf8Bytes("YOUR_INITIALIZER_DATA_HERE"); // Initializer data (could be the encoded constructor parameters)
-    const initializer: string = singleton.interface.encodeFunctionData("initialize", [
+    const initializer: string = singleton.interface.encodeFunctionData("setup", [
         [deployer.address, user.address],
         2,
         "0x542a2e3c52E8C78300906ec29786a9E8dE33C4B9", // CompatibilityFallbackHandler
@@ -28,7 +28,7 @@ async function main() {
 
     const amount = ethers.parseEther('0.00001');
 
-    const walletAddress = await factory.calculateMultiSigWalletAddress(
+    const walletAddress = await factory.calculateNXVAddress(
         singletonAddress,
         initializer,
         saltNonce
@@ -42,7 +42,7 @@ async function main() {
     });
 
     const txData = {
-        destination: deployer.address,
+        to: deployer.address,
         value: amount,
         data: "0x",
         operation: 0,
@@ -53,7 +53,7 @@ async function main() {
 
     
     // Call the createMultiSigWallet function
-    const tx = await factory.createMultiSigWalletWithTransaction(
+    const tx = await factory.createProxyWithTransaction(
         singletonAddress, 
         initializer, 
         saltNonce,

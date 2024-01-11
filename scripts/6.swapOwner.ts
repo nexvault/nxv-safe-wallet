@@ -28,7 +28,7 @@ async function main() {
     const walletAddress = await nxv.getAddress();
 
     const txData = {
-        destination: walletAddress,
+        to: walletAddress,
         value: 0,
         data: changeThresholdData,
         operation: 0,
@@ -46,7 +46,7 @@ async function main() {
     console.log("addOwner function data:", swapOwnerData);
 
     const txData1 = {
-        destination: walletAddress,
+        to: walletAddress,
         value: 0,
         data: swapOwnerData,
         operation: 0,
@@ -63,7 +63,7 @@ async function main() {
     console.log("threshold before:", thresHoldBefore);
     // process.exit(0);
     
-    const transaction = await nxv.batchSignature(
+    const transaction = await nxv.execTransaction(
         ...Object.values(txData1),
         sortedSignatures
     );

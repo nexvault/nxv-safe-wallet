@@ -33,7 +33,7 @@ async function main() {
     const walletAddress = await nxv.getAddress();
 
     const txData = {
-        destination: walletAddress,
+        to: walletAddress,
         value: 0,
         data: removeOwnerData,
         operation: 0,
@@ -45,7 +45,7 @@ async function main() {
 
     const ownersBefore = await nxv.getOwners();
     console.log("owners before:", ownersBefore);
-    const transaction = await nxv.batchSignature(
+    const transaction = await nxv.execTransaction(
         ...Object.values(txData),
         sortedSignatures
     );

@@ -105,7 +105,7 @@ contract NXVProxyFactory {
         if (address(callback) != address(0)) callback.proxyCreated(proxy, _singleton, initializer, saltNonce);
     }
 
-    function createMultiSigWalletWithTransaction(
+    function createProxyWithTransaction(
         address _singleton, 
         bytes memory initializer,
         uint256 saltNonce,
@@ -120,7 +120,7 @@ contract NXVProxyFactory {
         success = INXV(address(wallet)).execTransaction(to, value, data, operation, nonce, signatures);
     }
 
-    function calculateMultiSigWalletAddress(
+    function calculateNXVAddress(
         address _singleton,
         bytes memory initializer,
         uint256 saltNonce

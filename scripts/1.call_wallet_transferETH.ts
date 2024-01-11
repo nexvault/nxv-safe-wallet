@@ -32,7 +32,7 @@ async function main() {
     const amount = ethers.parseEther('0.00001');
 
     const txData = {
-        destination: deployer.address,
+        to: deployer.address,
         value: amount,
         data: "0x",
         operation: 0,
@@ -41,7 +41,7 @@ async function main() {
 
     const sortedSignatures = await signTypedData(txData, walletAddress);
 
-    const transaction = await nxv.batchSignature(
+    const transaction = await nxv.execTransaction(
         ...Object.values(txData),
         sortedSignatures,
         // { gasPrice: ethers.utils.parseUnits('2', 'gwei') }

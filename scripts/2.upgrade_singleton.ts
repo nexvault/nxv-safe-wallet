@@ -67,7 +67,7 @@ async function main() {
     // process.exit(0);
 
     const txData = {
-        destination: await migration.getAddress(),
+        to: await migration.getAddress(),
         value: amount,
         data: data,
         operation: 1,  // delegatecall
@@ -76,7 +76,7 @@ async function main() {
 
     const sortedSignatures = await signTypedData(txData, walletAddress);
 
-    const transaction = await NXV130.batchSignature(
+    const transaction = await NXV130.execTransaction(
         ...Object.values(txData),
         sortedSignatures,
         // { gasPrice: ethers.utils.parseUnits('2', 'gwei') }

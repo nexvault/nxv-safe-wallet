@@ -5,8 +5,8 @@ export async function signMessage(messageHash: any, walletAddress: string) {
     const { chainId } = await ethers.provider.getNetwork();
 
     const domain = {
-      name: "MultiSigWallet",
-      version: "2",
+      name: "NXVWallet",
+      version: "3",
       chainId: chainId,
       verifyingContract: walletAddress,
     };
@@ -53,15 +53,15 @@ export async function signTypedData(txData: any, walletAddress: string) {
     const { chainId } = await ethers.provider.getNetwork();
 
     const domain = {
-        name: 'MultiSigWallet',
-        version: '2',
+        name: 'NXVWallet',
+        version: '3',
         chainId: chainId,
         verifyingContract: walletAddress
     };
 
     const types = {
         Transaction:[
-            { name: "destination", type: "address" },
+            { name: "to", type: "address" },
             { name: "value", type: "uint256" },
             { name: "data", type: "bytes" },
             { name: "operation", type: "uint8" },

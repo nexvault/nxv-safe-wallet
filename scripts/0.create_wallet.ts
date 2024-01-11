@@ -17,14 +17,14 @@ async function main() {
     const singletonAddress = await singleton.getAddress(); // Address of the singleton
 
     // const initializer = ethers.utils.toUtf8Bytes("YOUR_INITIALIZER_DATA_HERE"); // Initializer data (could be the encoded constructor parameters)
-    const initializer = singleton.interface.encodeFunctionData("initialize", [
+    const initializer = singleton.interface.encodeFunctionData("setup", [
         [deployer.address, user.address],
         2,
         "0x542a2e3c52E8C78300906ec29786a9E8dE33C4B9", // CompatibilityFallbackHandler
     ])
 
     // Call the createMultiSigWallet function
-    const tx = await factory.createMultiSigWallet(singletonAddress, initializer, saltNonce);
+    const tx = await factory.createProxyWithNonce(singletonAddress, initializer, saltNonce);
     const receipt = await tx.wait();
     // console.log('receipt:', receipt, "\n");
 
