@@ -1,31 +1,31 @@
 import { task } from "hardhat/config";
-task('deploy-factory', 'Deploy a MultiSigWalletFactory')
+task('deploy-factory', 'Deploy a NXVProxyFactory')
   .setAction(async (args, hre) => {
-  const MultiSigWalletFactory = await hre.ethers.getContractFactory('MultiSigWalletFactory');
-  console.log('Deploying MultiSigWalletFactory...');
+  const NXVProxyFactory = await hre.ethers.getContractFactory('NXVProxyFactory');
+  console.log('Deploying NXVProxyFactory...');
 
-  const walletFactory = await MultiSigWalletFactory.deploy();
+  const walletFactory = await NXVProxyFactory.deploy();
 
   await walletFactory.waitForDeployment();
-  console.log('MultiSigWalletFactory deployed to:', walletFactory.target);
+  console.log('NXVProxyFactory deployed to:', walletFactory.target);
 
   const receipt = await walletFactory.deploymentTransaction()?.wait();
   console.log('Deployment Hash: ', receipt?.hash);
   console.log('Transaction gasUsed:', receipt?.gasUsed?.toString());
 });
 
-task('deploy-walletImplementation', 'Deploy a MultiSigWalletImplementation')
+task('deploy-NXVImplementation', 'Deploy a NXVImplementation')
   .setAction(async (args, hre) => {
-  const MultiSigWallet = await hre.ethers.getContractFactory("MultiSigWallet");
+  const NXV = await hre.ethers.getContractFactory("NXV");
 
-  console.log('Deploying MultiSigWalletImplementation...');
+  console.log('Deploying NXVImplementation...');
 
-  const walletImpl = await MultiSigWallet.deploy();
+  const walletImpl = await NXV.deploy();
   await walletImpl.waitForDeployment();
 
   const receipt = await walletImpl.deploymentTransaction()?.wait();
 
-  console.log('MultiSigWalletImplementation deployed to', walletImpl.target);
+  console.log('NXVImplementation deployed to', walletImpl.target);
   console.log('Deployment Hash:', receipt?.hash);
 
   console.log('Transaction gasUsed:', receipt?.gasUsed.toString());
@@ -112,23 +112,23 @@ task('deploy-signMessageLib', 'Deploy signMessageLib')
 });
 
 task('calculate-wallet-address', 'Calculate a NXVProxy address with params')
-  .addParam('factory', 'The MultiSigWalletFactory contract to call')
+  .addParam('factory', 'The NXVProxyFactory contract to call')
   .addParam('implementation', 'The NXVProxy implementation contract to use')
   .addParam('fallbackhandler', 'The CompatibilityFallbackHandler contract to use')
-  .addParam('owners', 'owners of MultiSigWallet')
-  .addParam('required', 'required of MultiSigWallet')
-  .addParam('nonce', 'nonce of "create2" opcode to calculate MultiSigWallet address')
+  .addParam('owners', 'owners of NXV')
+  .addParam('required', 'required of NXV')
+  .addParam('nonce', 'nonce of "create2" opcode to calculate NXV address')
   .setAction(async (args, hre) => {
-    const MultiSigWalletFactory = await hre.ethers.getContractFactory('MultiSigWalletFactory');
-    const MultiSigWalletImplementation = await hre.ethers.getContractFactory('MultiSigWallet');
+    const NXVProxyFactory = await hre.ethers.getContractFactory('NXVProxyFactory');
+    const NXVImplementation = await hre.ethers.getContractFactory('NXV');
     const FallbackHandler = await hre.ethers.getContractFactory("CompatibilityFallbackHandler")
 
-    const walletFactory: any = MultiSigWalletFactory.attach(args.factory);
-    const walletImplementation = MultiSigWalletImplementation.attach(args.implementation);
+    const walletFactory: any = NXVProxyFactory.attach(args.factory);
+    const walletImplementation = NXVImplementation.attach(args.implementation);
     const fallbackHandler = FallbackHandler.attach(args.fallbackhandler);
 
-    console.log('MultiSigWalletFactory is:', await walletFactory.getAddress());
-    console.log('MultiSigWalletImplementation is:', await walletImplementation.getAddress());
+    console.log('NXVProxyFactory is:', await walletFactory.getAddress());
+    console.log('NXVImplementation is:', await walletImplementation.getAddress());
     console.log('FallbackHandler is:', await fallbackHandler.getAddress());
 
     const owners = args.owners.split(',');
@@ -138,12 +138,12 @@ task('calculate-wallet-address', 'Calculate a NXVProxy address with params')
 
     console.log('Calculating NXVProxy Address...');
 
-    const initializer = walletImplementation.interface.encodeFunctionData("initialize", [
+    const initializer = walletImplementation.interface.encodeFunctionData("setup", [
       owners, required,
       await fallbackHandler.getAddress(), // CompatibilityFallbackHandler
     ])
 
-    const walletProxyAddress = await walletFactory.calculateMultiSigWalletAddress(
+    const walletProxyAddress = await walletFactory.calculateNXVAddress(
       walletImplementation.getAddress(),
       initializer,
       nonce
@@ -153,23 +153,23 @@ task('calculate-wallet-address', 'Calculate a NXVProxy address with params')
 
 
 task('create-wallet', 'Create a NXVProxy with params')
-  .addParam('factory', 'The MultiSigWalletFactory contract to call')
+  .addParam('factory', 'The NXVProxyFactory contract to call')
   .addParam('implementation', 'The NXVProxy implementation contract to use')
   .addParam('fallbackhandler', 'The CompatibilityFallbackHandler contract to use')
-  .addParam('owners', 'owners of MultiSigWallet')
-  .addParam('required', 'required of MultiSigWallet')
-  .addParam('nonce', 'nonce of "create2" opcode to calculate MultiSigWallet address')
+  .addParam('owners', 'owners of NXV')
+  .addParam('required', 'required of NXV')
+  .addParam('nonce', 'nonce of "create2" opcode to calculate NXV address')
   .setAction(async (args, hre) => {
-    const MultiSigWalletFactory = await hre.ethers.getContractFactory('MultiSigWalletFactory');
-    const MultiSigWalletImplementation = await hre.ethers.getContractFactory('MultiSigWallet');
+    const NXVProxyFactory = await hre.ethers.getContractFactory('NXVProxyFactory');
+    const NXVImplementation = await hre.ethers.getContractFactory('NXV');
     const FallbackHandler = await hre.ethers.getContractFactory("CompatibilityFallbackHandler")
 
-    const walletFactory: any = MultiSigWalletFactory.attach(args.factory);
-    const walletImplementation = MultiSigWalletImplementation.attach(args.implementation);
+    const walletFactory: any = NXVProxyFactory.attach(args.factory);
+    const walletImplementation = NXVImplementation.attach(args.implementation);
     const fallbackHandler = FallbackHandler.attach(args.fallbackhandler);
 
-    console.log('MultiSigWalletFactory is:', await walletFactory.getAddress());
-    console.log('MultiSigWalletImplementation is:', await walletImplementation.getAddress());
+    console.log('NXVProxyFactory is:', await walletFactory.getAddress());
+    console.log('NXVImplementation is:', await walletImplementation.getAddress());
     console.log('FallbackHandler is:', await fallbackHandler.getAddress());
 
     const owners = args.owners.split(',');
@@ -179,17 +179,17 @@ task('create-wallet', 'Create a NXVProxy with params')
 
     console.log('Creating NXVProxy...');
 
-    const initializer = walletImplementation.interface.encodeFunctionData("initialize", [
+    const initializer = walletImplementation.interface.encodeFunctionData("setup", [
       owners, required,
       await fallbackHandler.getAddress(), // CompatibilityFallbackHandler
     ])
-    const transaction = await walletFactory.createMultiSigWallet(
+    const transaction = await walletFactory.createProxyWithNonce(
       await walletImplementation.getAddress(),
       initializer,
       nonce
     );
     const receipt = await transaction.wait();
-    console.log('MultiSigWallet proxy deployed at:', receipt?.logs[0].address, "\n");
+    console.log('NXV proxy deployed at:', receipt?.logs[0].address, "\n");
     console.log('Deployment Hash:', receipt.hash);
 
     const gasUsed = receipt.gasUsed;
