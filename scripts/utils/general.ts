@@ -20,7 +20,7 @@ export async function signMessage(messageHash: any, walletAddress: string) {
       message: messageHash
     };
 
-    let signatures = [];
+    let signatures: any = [];
 
     const sig0 = await deployer.signTypedData(domain, types, txData);
     signatures.push({
@@ -42,7 +42,7 @@ export async function signMessage(messageHash: any, walletAddress: string) {
 
     signatures = signatures.sort((a: any, b: any) => a.address - b.address);
     
-    const sortedSignatures: string = '0x' + signatures.map(sig => sig.signature.slice(2)).join('');
+    const sortedSignatures: string = '0x' + signatures.map((sig: { signature: string | any[]; }) => sig.signature.slice(2)).join('');
     console.log("sortedSignatures", sortedSignatures, "\n");
     return sortedSignatures;
 }
@@ -67,7 +67,7 @@ export async function signTypedData(txData: any, walletAddress: string) {
         ]
     };
 
-    let signatures = [];
+    let signatures: any = [];
 
     const sig0 = await deployer.signTypedData(domain, types, txData);
     signatures.push({
@@ -83,8 +83,7 @@ export async function signTypedData(txData: any, walletAddress: string) {
 
     signatures = signatures.sort((a: any, b: any) => a.address - b.address);
     
-    const sortedSignatures: string = '0x' + signatures.map(sig => sig.signature.slice(2)).join('');
-    // console.log("sortedSignatures", sortedSignatures, "\n");
+    const sortedSignatures: string = '0x' + signatures.map((sig: { signature: string | any[]; }) => sig.signature.slice(2)).join('');
     return sortedSignatures;
   }
 

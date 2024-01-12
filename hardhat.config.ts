@@ -71,7 +71,7 @@ const userConfig: HardhatUserConfig = {
         target: "ethers-v6",
     },
     solidity: {
-        compilers: [{ version: primarySolidityVersion, settings: soliditySettings }, { version: "0.8.17" }, { version: "0.6.12" }, { version: "0.5.17" }],
+        compilers: [{ version: primarySolidityVersion, settings: soliditySettings }, { version: "0.6.12" }, { version: "0.5.17" }],
     },
     networks: {
         hardhat: {
@@ -124,8 +124,7 @@ const userConfig: HardhatUserConfig = {
         timeout: 2000000,
     },
     etherscan: {
-        // apiKey: ETHERSCAN_API_KEY,
-        apiKey: "XTBKVMP3ZBIPC5YHGM3BC251YYGTJBFPUD",
+        apiKey: ETHERSCAN_API_KEY,
     },
 };
 if (NODE_URL) {

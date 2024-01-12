@@ -3,10 +3,11 @@ import { signTypedData } from "./utils/general";
 import { saltNonce } from "./utils/constants";
 import deploymentData from "../test/json/NXVDeployment.json";
 import NXVRuntimeBytecode from "../test/json/NXVRuntimeBytecode.json";
-import { getNXVWithSingleton, migrationContractFrom130To141, getNXVSingletonAt } from "../test/utils/setup";
+import { getNXVWithSingleton, migrationContractFrom100To110, getNXVSingletonAt } from "../test/utils/setup";
 
-// 首先部署升级合约, libraries/NXVMigration.sol, 然后钱包 delegate 调用升级合约的 migrate() 方法, 所以每次升级都需要重新部署升级合约，
-// 这样做的目的是不需要像透明代理和UUPS代理那样, 合约需要判断权限, 从而增加了合约的复杂度, 浪费gas
+// first deploy migrate contract, libraries/NXVMigration.sol, then wallet delegate call migrate() method of migrate contract, so every time
+// upgrade need to deploy migrate contract again, the purpose is that we don't need to add permission check in contract like transparent proxy
+// and UUPS proxy, which will increase the complexity of contract and waste gas
 async function main() {
 
     const NXV_SINGLETON_141_ADDRESS = "0x0787Bedd6bb2Db4c9013B736BC251e9Edd091bdC";
@@ -19,31 +20,31 @@ async function main() {
         await deployments.fixture();
 
         // Set the runtime code for hardcoded addresses
-        await hre.network.provider.send("hardhat_setCode", [NXV_SINGLETON_141_ADDRESS, NXVRuntimeBytecode.NXV141]);
+        await hre.network.provider.send("hardhat_setCode", [NXV_SINGLETON_141_ADDRESS, NXVRuntimeBytecode.NXV110]);
         await hre.network.provider.send("hardhat_setCode", [
             COMPATIBILITY_FALLBACK_HANDLER_141,
-            NXVRuntimeBytecode.NXV141fallbackHandler,
+            NXVRuntimeBytecode.NXV110fallbackHandler,
         ]);
 
         const signers = await ethers.getSigners();
         const [user1, user2] = signers;
-        const singleton130Address = (await (await user1.sendTransaction({ data: deploymentData.NXV130 })).wait())?.contractAddress;
+        const singleton130Address = (await (await user1.sendTransaction({ data: deploymentData.NXV100 })).wait())?.contractAddress;
         if (!singleton130Address) {
-            throw new Error("Could not deploy NXV130");
+            throw new Error("Could not deploy NXV100");
         }
         const singleton130 = await getNXVSingletonAt(singleton130Address);
 
-        const migration: any = await (await migrationContractFrom130To141()).deploy();
+        const migration: any = await (await migrationContractFrom100To110()).deploy();
         return {
-            NXV130: await getNXVWithSingleton(singleton130, [user1.address, user2.address]),
+            NXV100: await getNXVWithSingleton(singleton130, [user1.address, user2.address]),
             migration,
             signers,
         };
     });
 
-    const { NXV130, migration, signers } = await setupTests() as {NXV130: any, migration: any, signers: any[]};
+    const { NXV100, migration, signers } = await setupTests() as {NXV100: any, migration: any, signers: any[]};
 
-    const walletAddress = await NXV130.getAddress();
+    const walletAddress = await NXV100.getAddress();
     const migrationNXV = migration.attach(walletAddress);
 
     const migratedInterface = new ethers.Interface(["function masterCopy() view returns(address)"]);
@@ -54,11 +55,10 @@ async function main() {
     const masterCopyData = "0xa619486e";
 
     const response = await signers[0].call({ to: walletAddress, data: masterCopyData });
-    // console.log("Master Copy Response:", response);
     const abiCoder = new ethers.AbiCoder();
     const masterCopyAddress = abiCoder.decode(["address"], response)[0];
     console.log("Master Copy Address Before:", masterCopyAddress);
-    const fallbackHandlerAddressBefore = await NXV130.getStorageAt(FALLBACK_HANDLER_STORAGE_SLOT, 1);
+    const fallbackHandlerAddressBefore = await NXV100.getStorageAt(FALLBACK_HANDLER_STORAGE_SLOT, 1);
     console.log("fallbackHandlerAddressBefore:", fallbackHandlerAddressBefore);
     // process.exit(0);
 
@@ -76,7 +76,7 @@ async function main() {
 
     const sortedSignatures = await signTypedData(txData, walletAddress);
 
-    const transaction = await NXV130.execTransaction(
+    const transaction = await NXV100.execTransaction(
         ...Object.values(txData),
         sortedSignatures,
         // { gasPrice: ethers.utils.parseUnits('2', 'gwei') }
@@ -89,12 +89,11 @@ async function main() {
 
     console.log('Transaction gasUsed:', gasUsed?.toString());
     const response1 = await signers[0].call({ to: walletAddress, data: masterCopyData });
-    // console.log("Master Copy Response:", response1);
     const abiCoder1 = new ethers.AbiCoder();
     const masterCopyAddressAfter = abiCoder1.decode(["address"], response1)[0];
     console.log("Master Copy Address After:", masterCopyAddressAfter);
 
-    const fallbackHandlerAddressAfter = await NXV130.getStorageAt(FALLBACK_HANDLER_STORAGE_SLOT, 1);
+    const fallbackHandlerAddressAfter = await NXV100.getStorageAt(FALLBACK_HANDLER_STORAGE_SLOT, 1);
     console.log("fallbackHandlerAddressAfter:", fallbackHandlerAddressAfter);
 }
 

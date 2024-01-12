@@ -20,5 +20,5 @@ contract MyNFT is ERC721 {
         _tokenId++;
     }
 }
-// NFT合约地址
+// NFT contract address on Goerli testnet
 // https://goerli.etherscan.io/address/0xe81335d1a0d64f00b5d44df1fd132170e2f4ba29

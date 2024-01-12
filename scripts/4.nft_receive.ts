@@ -3,9 +3,9 @@ import hre, { ethers, deployments } from "hardhat";
 import { saltNonce } from "./utils/constants";
 import { getNXVWithOwners, compatFallbackHandlerDeployment } from "../test/utils/setup";
 
-// 先部署NFT合约，然后mint两个token，然后将第二个token转给NXV合约，然后调用NXV合约的batchSignature方法，
-// 调用NFT合约的safeTransferFrom方法，将token转回去
-// safeTransferFrom方法, safeTransferFrom会检查接收者是否实现了onERC721Received方法
+// first deploy NFT contract, then mint two tokens, then transfer the second token to NXV contract, then call the batchSignature method of NXV contract,
+// call the safeTransferFrom method of NFT contract to transfer the token back
+// safeTransferFrom method, safeTransferFrom will check whether the receiver has implemented the onERC721Received method
 async function main() {
     const setupTests = deployments.createFixture(async ({ deployments }) => {
         await deployments.fixture(); // this will run all deploy scripts

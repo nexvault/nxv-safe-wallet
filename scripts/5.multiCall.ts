@@ -7,7 +7,7 @@ import { hexDataLength } from "@ethersproject/bytes";
 
 async function main() {
     const setupTests = deployments.createFixture(async ({ deployments }) => {
-        await deployments.fixture(); // this will run all deploy scripts
+        await deployments.fixture();    // this will run all deploy scripts
         const signers = await ethers.getSigners();
         const [user1, user2, user3] = signers;
         console.log(user1.address);
@@ -56,7 +56,7 @@ async function main() {
         const encoded = ethers.solidityPacked(
             ["uint8", "address", "uint256", "uint256", "bytes"],
             [transaction.operation, transaction.to, transaction.value, hexDataLength(transaction.data), transaction.data]
-            // hexDataLength(data) 返回data的字节长度, 两个16进制字符为一个字节
+            // hexDataLength(data) return the length of data in bytes, 2 hex characters for 1 byte
         );
         return encoded.slice(2);
     }

@@ -6,7 +6,7 @@ import { getNXVWithOwners } from "../test/utils/setup";
 
 async function main() {
     const setupTests = deployments.createFixture(async ({ deployments }) => {
-        await deployments.fixture(); // 这将会运行所有的部署合约脚本
+        await deployments.fixture();    // this will run all deploy scripts
         const signers = await ethers.getSigners();
         const [user1, user2] = signers;
         return {
@@ -19,9 +19,7 @@ async function main() {
     const [deployer, user] = await ethers.getSigners();
 
     const saltNonce: number = new Date().getTime();
-    // const saltNonce: number = 1;
     console.log(saltNonce);
-    // console.log(await walletProxy.address);
 
     console.log('Sending 0.0001 Ether to this MultiSigWallet contract will be deployed...', "\n");
     await deployer.sendTransaction({
@@ -48,7 +46,6 @@ async function main() {
     );
     
     const receipt = await transaction.wait();
-    // console.log(receipt);
     console.log('Transaction Hash:', receipt?.hash);
 
     const gasUsed = receipt?.gasUsed;

@@ -6,20 +6,15 @@ import { getNXVSingleton, getFactory } from "../test/utils/setup";
 
 async function main() {
     const setupTests = deployments.createFixture(async ({ deployments }) => {
-        await deployments.fixture(); // 这将会运行所有的部署合约脚本
-        // const multiSigWalletContract = await ethers.getContract('MultiSigWallet');
-        // let multiSigWallet = await multiSigWalletContract.deployed();
+        await deployments.fixture(); // this will run all deploy scripts
     });
     await setupTests();
-    // Set up the ethers signer
     const [deployer, user] = await ethers.getSigners();
-    // Parameters for the createMultiSigWallet function
     
     const factory: any = await getFactory();
     const singleton = await getNXVSingleton();
     const singletonAddress: Address = await singleton.getAddress(); // Address of the singleton
 
-    // const initializer = ethers.utils.toUtf8Bytes("YOUR_INITIALIZER_DATA_HERE"); // Initializer data (could be the encoded constructor parameters)
     const initializer: string = singleton.interface.encodeFunctionData("setup", [
         [deployer.address, user.address],
         2,
@@ -52,7 +47,7 @@ async function main() {
     const sortedSignatures: any = await signTypedData(txData, walletAddress);
 
     
-    // Call the createMultiSigWallet function
+    // Call the createProxyWithTransaction function
     const tx = await factory.createProxyWithTransaction(
         singletonAddress, 
         initializer, 
@@ -77,7 +72,7 @@ async function main() {
     // console.log('Transaction log1:', receipt?.logs[1], "\n");
 
     // Parse the event to get the proxy address
-    // const event = receipt.event.find((event: { event: string; }) => event.event === "NewMultiSigWalletCreated");
+    // const event = receipt.event.find((event: { event: string; }) => event.event === "ProxyCreation");
     // const proxyAddress = event.args.wallet;
 
     // console.log(`MultiSigWallet proxy contract deployed at: ${proxyAddress}`);

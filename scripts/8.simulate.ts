@@ -3,7 +3,7 @@ import { getNXVWithOwners, getCompatFallbackHandler, compatFallbackHandlerDeploy
 
 async function main() {
     const setupTests = deployments.createFixture(async ({ deployments }) => {
-        await deployments.fixture(); // this will run all deploy scripts
+        await deployments.fixture();    // this will run all deploy scripts
         const signers = await ethers.getSigners();
         const [user1, user2] = signers;
         console.log(user1.address);
@@ -20,7 +20,6 @@ async function main() {
 
     const message = "hahahaha";
     const messageHash = ethers.keccak256(ethers.toUtf8Bytes(message));
-    // const messageHash1 = ethers.toUtf8Bytes(message)
     console.log("multiData: ", messageHash);
     
     const callData = signMessage.interface.encodeFunctionData(
