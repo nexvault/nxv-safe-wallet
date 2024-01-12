@@ -37,20 +37,23 @@ async function main() {
     const receipt2 = await tx2.wait();
     console.log('Transaction Hash:', receipt2.hash);
 
-    const index = await nftContract.tokenOfOwnerByIndex(deployer.address, 1);
-    console.log("deploy token:", index);
+    const deployAmountBefore = await nftContract.balanceOf(deployer.address);
+    console.log("deployer nft number Before:", deployAmountBefore);
+
+    const walletAmountBefore = await nftContract.balanceOf(walletAddress);
+    console.log("NXVWallet nft number Before:", walletAmountBefore);
 
     const from = await deployer.getAddress();
-    const tx3 = await nftContract["safeTransferFrom(address,address,uint256)"](from, walletAddress, index);
+    const tx3 = await nftContract["safeTransferFrom(address,address,uint256)"](from, walletAddress, 1);
     const receipt3 = await tx3.wait();
     console.log('Transaction Hash:', receipt3.hash);
-    const nxvIndex = await nftContract.tokenOfOwnerByIndex(walletAddress, 0);
-    console.log("NXV token:", nxvIndex);
+    const walletAmount = await nftContract.balanceOf(walletAddress);
+    console.log("NXVWallet nft number Received:", walletAmount);
     // process.exit(0);
 
     const data = nftContract.interface.encodeFunctionData(
         "safeTransferFrom(address,address,uint256)",
-        [walletAddress, from, nxvIndex]
+        [walletAddress, from, 1]
     );
 
     const txData = {
@@ -75,10 +78,11 @@ async function main() {
 
     console.log('Transaction gasUsed:', gasUsed.toString());
 
-    const indexAfter = await nftContract.tokenOfOwnerByIndex(deployer.address, 1);
-    console.log("deploy token:", indexAfter);
-    // const nxvIndexAfter = await nftContract.tokenOfOwnerByIndex(walletAddress, 0);
-    // console.log("NXV token:", nxvIndexAfter);
+    const deployerAmountAfter = await nftContract.balanceOf(deployer.address);
+    console.log("deployer nft number After:", deployerAmountAfter);
+
+    const walletAmountAfter = await nftContract.balanceOf(walletAddress);
+    console.log("NXVWallet nft number After:", walletAmountAfter);
 }
 
 main().catch((error) => {

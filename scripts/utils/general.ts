@@ -6,7 +6,6 @@ export async function signMessage(messageHash: any, walletAddress: string) {
 
     const domain = {
       name: "NXVWallet",
-      version: "3",
       chainId: chainId,
       verifyingContract: walletAddress,
     };
@@ -54,7 +53,6 @@ export async function signTypedData(txData: any, walletAddress: string) {
 
     const domain = {
         name: 'NXVWallet',
-        version: '3',
         chainId: chainId,
         verifyingContract: walletAddress
     };
@@ -89,15 +87,4 @@ export async function signTypedData(txData: any, walletAddress: string) {
     // console.log("sortedSignatures", sortedSignatures, "\n");
     return sortedSignatures;
   }
-
-// export async function signTransaction(signers: string[], transactionHash: string) {
-//   let signatureBytes = "0x";
-//   // signers.sort();
-//   for (var i = 0; i < signers.length; i++) {
-//     let owner = new ethers.utils.SigningKey(signers[i]);
-//     let sig = owner.signDigest(transactionHash);
-//     signatureBytes += sig.r.substr(2) + sig.s.substr(2) + sig.v.toString(16);
-//   }
-//   return signatureBytes;
-// }
 

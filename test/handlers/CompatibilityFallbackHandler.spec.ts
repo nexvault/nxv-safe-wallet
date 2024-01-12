@@ -107,7 +107,7 @@ describe("CompatibilityFallbackHandler", () => {
             const typedDataSig = {
                 signer: user1.address,
                 data: await user1.signTypedData(
-                    { name: "NXVWallet", version: "3", verifyingContract: validatorAddress, chainId: await chainId() },
+                    { name: "NXVWallet", verifyingContract: validatorAddress, chainId: await chainId() },
                     EIP712_NXV_MESSAGE_TYPE,
                     { message: dataHash },
                 ),

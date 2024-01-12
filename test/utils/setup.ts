@@ -99,7 +99,7 @@ export const migrationContractTo150 = async () => {
     return await hre.ethers.getContractFactory("NXV150Migration");
 };
 
-export const migrationContractFrom130To141 = async () => {
+export const migrationContractFrom100To110 = async () => {
     return await hre.ethers.getContractFactory("NXVMigration");
 };
 

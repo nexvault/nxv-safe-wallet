@@ -19,10 +19,10 @@ contract NXVMigration is NXVStorage {
     address public immutable MIGRATION_SINGLETON;
 
     // Address of Safe contract version 1.4.1 Singleton
-    address public constant NXV_121_SINGLETON = address(0x0787Bedd6bb2Db4c9013B736BC251e9Edd091bdC);
+    address public constant NXV_100_SINGLETON = address(0x0787Bedd6bb2Db4c9013B736BC251e9Edd091bdC);
 
     // Address of Safe contract version 1.4.1 Compatibility Fallback Handler
-    address public constant NXV_121_FALLBACK_HANDLER = address(0x542a2e3c52E8C78300906ec29786a9E8dE33C4B9);
+    address public constant NXV_110_FALLBACK_HANDLER = address(0x542a2e3c52E8C78300906ec29786a9E8dE33C4B9);
 
     /**
      * @notice Constructor
@@ -31,8 +31,8 @@ contract NXVMigration is NXVStorage {
     constructor() {
         MIGRATION_SINGLETON = address(this);
 
-        require(isContract(NXV_121_SINGLETON), "NXV 1.2.1 Singleton is not deployed");
-        require(isContract(NXV_121_FALLBACK_HANDLER), "NXV 1.2.1 Fallback Handler is not deployed");
+        require(isContract(NXV_100_SINGLETON), "NXV 1.1.0 Singleton is not deployed");
+        require(isContract(NXV_110_FALLBACK_HANDLER), "NXV 1.1.0 Fallback Handler is not deployed");
     }
 
     /**
@@ -50,7 +50,7 @@ contract NXVMigration is NXVStorage {
         // By inheriting SafeStorage, the storage layout of Safe Proxy can be operated.
         require(address(this) != MIGRATION_SINGLETON, "Migration should only be called via delegatecall");
 
-        singleton = NXV_121_SINGLETON;
+        singleton = NXV_100_SINGLETON;
 
         emit ChangedMasterCopy(singleton);
     }
@@ -62,7 +62,7 @@ contract NXVMigration is NXVStorage {
         // The `migrate` function will take care of the delegatecall check
         migrate();
 
-        INXV(address(this)).setFallbackHandler(NXV_121_FALLBACK_HANDLER);
+        INXV(address(this)).setFallbackHandler(NXV_110_FALLBACK_HANDLER);
     }
 
     /**

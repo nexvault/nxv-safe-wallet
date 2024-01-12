@@ -42,13 +42,13 @@ contract NXV is
 {
     using SafeMath for uint256;
 
-    string public constant VERSION = "1.3.0";
+    string public constant VERSION = "1.0.0";
 
     /*
      *  Constants
      */
     // bytes32 public DOMAIN_SEPARATOR;
-    bytes32 private constant EIP712DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    bytes32 private constant EIP712DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
     bytes32 private constant TRANSACTION_TYPEHASH = keccak256("Transaction(address to,uint256 value,bytes data,uint8 operation,uint256 nonce)");
 
     /*
@@ -204,7 +204,6 @@ contract NXV is
             abi.encode(
                 EIP712DOMAIN_TYPEHASH,
                 keccak256("NXVWallet"), // name
-                keccak256("3"), // version
                 getChainId(),
                 address(this)
             )

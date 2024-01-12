@@ -16,7 +16,6 @@ async function main() {
     const {nxv} = await setupTests() as { nxv: any};
     const signMessage = await (await hre.ethers.getContractFactory("SignMessageLib")).deploy();
 
-    console.log("signMessage:", signMessage);
     const message = "hahaha";
     const messageHash = ethers.keccak256(ethers.toUtf8Bytes(message));
     const messageHash1 = ethers.toUtf8Bytes(message)

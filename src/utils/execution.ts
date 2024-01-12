@@ -64,7 +64,7 @@ export const preimageNXVMessageHash = (NXVAddress: string, message: string, chai
 };
 
 export const calculateNXVMessageHash = (NXVAddress: string, message: string, chainId: BigNumberish): string => {
-    return ethers.TypedDataEncoder.hash({ name: "NXVWallet", version: "3", verifyingContract: NXVAddress, chainId }, EIP712_NXV_MESSAGE_TYPE, { message });
+    return ethers.TypedDataEncoder.hash({ name: "NXVWallet", verifyingContract: NXVAddress, chainId }, EIP712_NXV_MESSAGE_TYPE, { message });
 };
 
 // export const NXVApproveHash = async (
@@ -107,7 +107,6 @@ export const NXVSignTypedData = async (
     // console.log("signerAddress", signerAddress);
     const domain = {
         name: 'NXVWallet',
-        version: '3',
         chainId: cid,
         verifyingContract: NXVAddress
     };
