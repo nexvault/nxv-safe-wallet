@@ -1,42 +1,23 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import "./TokenCallbackHandler.sol";
-import "../interfaces/ISignatureValidator.sol";
-import "../Safe.sol";
+import {TokenCallbackHandler} from "./TokenCallbackHandler.sol";
+import {ISignatureValidator} from "../interfaces/ISignatureValidator.sol";
+import {NXV} from "../NXV.sol";
+import {HandlerContext} from "./HandlerContext.sol";
 
 /**
  * @title Compatibility Fallback Handler - Provides compatibility between pre 1.3.0 and 1.3.0+ Safe contracts.
  * @author Richard Meissner - @rmeissner
  */
-contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidator {
-    // keccak256("SafeMessage(bytes message)");
-    bytes32 private constant SAFE_MSG_TYPEHASH = 0x60b3cbf8b4a223d68d641b3b6ddf9a298e7f33710cf3d3a9d1146b5a6150fbca;
+contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidator, HandlerContext {
+
+    // keccak256("NXVMessage(bytes message)");
+    bytes32 private constant NXV_MSG_TYPEHASH = 0xdf49db468cf6e89852cc8e0f454403496dae2705e7f81fce587279884ba3c833;
 
     bytes4 internal constant SIMULATE_SELECTOR = bytes4(keccak256("simulate(address,bytes)"));
 
-    address internal constant SENTINEL_MODULES = address(0x1);
-    bytes4 internal constant UPDATED_MAGIC_VALUE = 0x1626ba7e;
-
-    /**
-     * @notice Legacy EIP-1271 signature validation method.
-     * @dev Implementation of ISignatureValidator (see `interfaces/ISignatureValidator.sol`)
-     * @param _data Arbitrary length data signed on the behalf of address(msg.sender).
-     * @param _signature Signature byte array associated with _data.
-     * @return The EIP-1271 magic value.
-     */
-    function isValidSignature(bytes memory _data, bytes memory _signature) public view override returns (bytes4) {
-        // Caller should be a Safe
-        Safe safe = Safe(payable(msg.sender));
-        bytes memory messageData = encodeMessageDataForSafe(safe, _data);
-        bytes32 messageHash = keccak256(messageData);
-        if (_signature.length == 0) {
-            require(safe.signedMessages(messageHash) != 0, "Hash not approved");
-        } else {
-            safe.checkSignatures(messageHash, messageData, _signature);
-        }
-        return EIP1271_MAGIC_VALUE;
-    }
+    // address internal constant SENTINEL_MODULES = address(0x1);
 
     /**
      * @dev Returns the hash of a message to be signed by owners.
@@ -44,28 +25,28 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
      * @return Message hash.
      */
     function getMessageHash(bytes memory message) public view returns (bytes32) {
-        return getMessageHashForSafe(Safe(payable(msg.sender)), message);
+        return getMessageHashForNXV(NXV(payable(msg.sender)), message);
     }
 
     /**
      * @dev Returns the pre-image of the message hash (see getMessageHashForSafe).
-     * @param safe Safe to which the message is targeted.
+     * @param nxv Safe to which the message is targeted.
      * @param message Message that should be encoded.
      * @return Encoded message.
      */
-    function encodeMessageDataForSafe(Safe safe, bytes memory message) public view returns (bytes memory) {
-        bytes32 safeMessageHash = keccak256(abi.encode(SAFE_MSG_TYPEHASH, keccak256(message)));
-        return abi.encodePacked(bytes1(0x19), bytes1(0x01), safe.domainSeparator(), safeMessageHash);
+    function encodeMessageDataForNXV(NXV nxv, bytes memory message) public view returns (bytes memory) {
+        bytes32 nxvMessageHash = keccak256(abi.encode(NXV_MSG_TYPEHASH, keccak256(message)));
+        return abi.encodePacked(bytes1(0x19), bytes1(0x01), nxv.domainSeparator(), nxvMessageHash);
     }
 
     /**
      * @dev Returns hash of a message that can be signed by owners.
-     * @param safe Safe to which the message is targeted.
+     * @param nxv Safe to which the message is targeted.
      * @param message Message that should be hashed.
      * @return Message hash.
      */
-    function getMessageHashForSafe(Safe safe, bytes memory message) public view returns (bytes32) {
-        return keccak256(encodeMessageDataForSafe(safe, message));
+    function getMessageHashForNXV(NXV nxv, bytes memory message) public view returns (bytes32) {
+        return keccak256(encodeMessageDataForNXV(nxv, message));
     }
 
     /**
@@ -74,21 +55,17 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
      * @param _signature Signature byte array associated with _dataHash
      * @return Updated EIP1271 magic value if signature is valid, otherwise 0x0
      */
-    function isValidSignature(bytes32 _dataHash, bytes calldata _signature) external view returns (bytes4) {
-        ISignatureValidator validator = ISignatureValidator(msg.sender);
-        bytes4 value = validator.isValidSignature(abi.encode(_dataHash), _signature);
-        return (value == EIP1271_MAGIC_VALUE) ? UPDATED_MAGIC_VALUE : bytes4(0);
-    }
-
-    /**
-     * @dev Returns array of first 10 modules.
-     * @return Array of modules.
-     */
-    function getModules() external view returns (address[] memory) {
+    function isValidSignature(bytes32 _dataHash, bytes calldata _signature) public view override returns (bytes4) {
         // Caller should be a Safe
-        Safe safe = Safe(payable(msg.sender));
-        (address[] memory array, ) = safe.getModulesPaginated(SENTINEL_MODULES, 10);
-        return array;
+        NXV nxv = NXV(payable(msg.sender));
+        bytes memory messageData = encodeMessageDataForNXV(nxv, abi.encode(_dataHash));
+        bytes32 messageHash = keccak256(messageData);
+        if (_signature.length == 0) {
+            require(nxv.signedMessages(messageHash) != 0, "Hash not approved");
+        } else {
+            nxv.checkSignatures(messageHash, messageData, _signature);
+        }
+        return EIP1271_MAGIC_VALUE;
     }
 
     /**
@@ -107,7 +84,8 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
         targetContract;
         calldataPayload;
 
-        // solhint-disable-next-line no-inline-assembly
+        /* solhint-disable no-inline-assembly */
+        /// @solidity memory-safe-assembly
         assembly {
             let internalCalldata := mload(0x40)
             /**
@@ -166,5 +144,22 @@ contract CompatibilityFallbackHandler is TokenCallbackHandler, ISignatureValidat
                 revert(add(response, 0x20), mload(response))
             }
         }
+        /* solhint-enable no-inline-assembly */
+    }
+
+    /**
+     * @notice Checks whether the signature provided is valid for the provided data and hash. Reverts otherwise.
+     * @dev Since the EIP-1271 does an external call, be mindful of reentrancy attacks.
+     *      The function was moved to the fallback handler as a part of
+     *      1.5.0 contract upgrade. It used to be a part of the Safe core contract, but
+     *      was replaced by the same function that accepts the executor as a parameter.
+     * @param dataHash Hash of the data (could be either a message hash or transaction hash)
+     * @param signatures Signature data that should be verified.
+     *                   Can be packed ECDSA signature ({bytes32 r}{bytes32 s}{uint8 v}), contract signature (EIP-1271) or approved hash.
+     * @param requiredSignatures Amount of required valid signatures.
+     */
+    function checkNSignatures(bytes32 dataHash, bytes memory, bytes memory signatures, uint256 requiredSignatures) public view {
+        NXV(payable(_manager())).checkNSignatures(dataHash, "", signatures, requiredSignatures);
+        // _manager() is the NXV address
     }
 }

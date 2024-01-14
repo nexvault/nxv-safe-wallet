@@ -1,12 +1,10 @@
-import "@nomiclabs/hardhat-ethers";
+import "@nomicfoundation/hardhat-toolbox";
 import type { HardhatUserConfig, HttpNetworkUserConfig } from "hardhat/types";
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
-import "solidity-coverage";
 import "hardhat-deploy";
 import dotenv from "dotenv";
 import yargs from "yargs";
-import { getSingletonFactoryInfo } from "@gnosis.pm/safe-singleton-factory";
+import { getSingletonFactoryInfo } from "@safe-global/safe-singleton-factory";
+import "./src/tasks/deploy_contracts_single";
 
 const argv = yargs
     .option("network", {
@@ -14,7 +12,8 @@ const argv = yargs
         default: "hardhat",
     })
     .help(false)
-    .version(false).argv;
+    .version(false)
+    .parseSync();
 
 // Load environment variables.
 dotenv.config();
@@ -41,7 +40,7 @@ import "./src/tasks/show_codesize";
 import { BigNumber } from "@ethersproject/bignumber";
 import { DeterministicDeploymentInfo } from "hardhat-deploy/dist/types";
 
-const primarySolidityVersion = SOLIDITY_VERSION || "0.7.6";
+const primarySolidityVersion = SOLIDITY_VERSION || "0.8.17";
 const soliditySettings = SOLIDITY_SETTINGS ? JSON.parse(SOLIDITY_SETTINGS) : undefined;
 
 const deterministicDeployment = (network: string): DeterministicDeploymentInfo => {
@@ -67,6 +66,10 @@ const userConfig: HardhatUserConfig = {
         deploy: "src/deploy",
         sources: "contracts",
     },
+    typechain: {
+        outDir: "typechain-types",
+        target: "ethers-v6",
+    },
     solidity: {
         compilers: [{ version: primarySolidityVersion, settings: soliditySettings }, { version: "0.6.12" }, { version: "0.5.17" }],
     },
@@ -84,10 +87,6 @@ const userConfig: HardhatUserConfig = {
             ...sharedNetworkConfig,
             url: "https://rpc.gnosischain.com",
         },
-        ewc: {
-            ...sharedNetworkConfig,
-            url: `https://rpc.energyweb.org`,
-        },
         goerli: {
             ...sharedNetworkConfig,
             url: `https://goerli.infura.io/v3/${INFURA_KEY}`,
@@ -99,10 +98,6 @@ const userConfig: HardhatUserConfig = {
         polygon: {
             ...sharedNetworkConfig,
             url: `https://polygon-mainnet.infura.io/v3/${INFURA_KEY}`,
-        },
-        volta: {
-            ...sharedNetworkConfig,
-            url: `https://volta-rpc.energyweb.org`,
         },
         bsc: {
             ...sharedNetworkConfig,

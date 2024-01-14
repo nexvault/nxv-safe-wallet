@@ -1,40 +1,50 @@
 import { expect } from "chai";
-import hre, { deployments, waffle } from "hardhat";
-import "@nomiclabs/hardhat-ethers";
+import hre, { deployments, ethers } from "hardhat";
 import { AddressZero } from "@ethersproject/constants";
-import { getSafeTemplate } from "../utils/setup";
+import { getNXVTemplate } from "../utils/setup";
 
-describe("HandlerContext", async () => {
-    const [user1, user2] = waffle.provider.getWallets();
-
+describe("HandlerContext", () => {
     const setup = deployments.createFixture(async ({ deployments }) => {
         await deployments.fixture();
         const TestHandler = await hre.ethers.getContractFactory("TestHandler");
         const handler = await TestHandler.deploy();
+        const signers = await ethers.getSigners();
         return {
-            safe: await getSafeTemplate(),
+            NXV: await getNXVTemplate(),
             handler,
+            signers,
         };
     });
 
     it("parses information correctly", async () => {
-        const { handler } = await setup();
+        const {
+            handler,
+            signers: [user1, user2],
+        } = await setup();
+        const handlerAddress = await handler.getAddress();
+
         const response = await user1.call({
-            to: handler.address,
+            to: handlerAddress,
             data: handler.interface.encodeFunctionData("dudududu") + user2.address.slice(2),
         });
         expect(handler.interface.decodeFunctionResult("dudududu", response)).to.be.deep.eq([user2.address, user1.address]);
     });
 
-    it("works with the Safe", async () => {
-        const { safe, handler } = await setup();
-        await safe.setup([user1.address, user2.address], 1, AddressZero, "0x", handler.address, AddressZero, 0, AddressZero);
+    it("works with the NXV", async () => {
+        const {
+            NXV,
+            handler,
+            signers: [user1, user2],
+        } = await setup();
+        const handlerAddress = await handler.getAddress();
+        const NXVAddress = await NXV.getAddress();
+        await NXV.setup([user1.address, user2.address], 1, handlerAddress);
 
         const response = await user1.call({
-            to: safe.address,
+            to: NXVAddress,
             data: handler.interface.encodeFunctionData("dudududu"),
         });
 
-        expect(handler.interface.decodeFunctionResult("dudududu", response)).to.be.deep.eq([user1.address, safe.address]);
+        expect(handler.interface.decodeFunctionResult("dudududu", response)).to.be.deep.eq([user1.address, NXVAddress]);
     });
 });

@@ -6,12 +6,19 @@ const deploy: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { deployer } = await getNamedAccounts();
     const { deploy } = deployments;
 
-    await deploy("SafeProxyFactory", {
+    await deploy("NXVProxyFactory", {
         from: deployer,
         args: [],
         log: true,
         deterministicDeployment: true,
     });
+
+    // await deploy("NXVProxy", {
+    //     from: deployer,
+    //     args: [],
+    //     log: true,
+    //     deterministicDeployment: true,
+    // });
 };
 
 deploy.tags = ["factory", "l2-suite", "main-suite"];

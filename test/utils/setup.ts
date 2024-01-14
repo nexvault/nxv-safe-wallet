@@ -1,10 +1,11 @@
 import hre, { deployments } from "hardhat";
-import { Wallet, Contract } from "ethers";
+import { Contract, Signer } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import solc from "solc";
 import { logGas } from "../../src/utils/execution";
-import { safeContractUnderTest } from "./config";
+import { nxvContractUnderTest } from "./config";
 import { getRandomIntAsString } from "./numbers";
+import { NXV } from "../../typechain-types";
 
 export const defaultTokenCallbackHandlerDeployment = async () => {
     return await deployments.get("TokenCallbackHandler");
@@ -22,56 +23,84 @@ export const compatFallbackHandlerContract = async () => {
     return await hre.ethers.getContractFactory("CompatibilityFallbackHandler");
 };
 
-export const getSafeSingleton = async () => {
-    const SafeDeployment = await deployments.get(safeContractUnderTest());
-    const Safe = await hre.ethers.getContractFactory(safeContractUnderTest());
-    return Safe.attach(SafeDeployment.address);
+export const getNXVSingleton = async () => {
+    const NXVDeployment = await deployments.get(nxvContractUnderTest());
+    const NXV = await hre.ethers.getContractAt(nxvContractUnderTest(), NXVDeployment.address);
+    return NXV;
 };
 
-export const getSafeSingletonContract = async () => {
-    const safeSingleton = await hre.ethers.getContractFactory(safeContractUnderTest());
+export const getNXVSingletonContract = async () => {
+    const NXVSingleton = await hre.ethers.getContractFactory("NXV");
 
-    return safeSingleton;
+    return NXVSingleton;
+};
+
+export const getNXVL2SingletonContract = async () => {
+    const NXVSingleton = await hre.ethers.getContractFactory("NXVL2");
+
+    return NXVSingleton;
+};
+
+export const getNXVSingletonContractFromEnvVariable = async () => {
+    return await getNXVSingletonContract();
+};
+
+export const getNXVSingletonAt = async (address: string) => {
+    const NXV = await hre.ethers.getContractAt(nxvContractUnderTest(), address);
+    return NXV as unknown as NXV;
 };
 
 export const getFactoryContract = async () => {
-    const factory = await hre.ethers.getContractFactory("SafeProxyFactory");
+    const factory = await hre.ethers.getContractFactory("NXVProxyFactory");
 
     return factory;
 };
 
 export const getFactory = async () => {
-    const FactoryDeployment = await deployments.get("SafeProxyFactory");
-    const Factory = await hre.ethers.getContractFactory("SafeProxyFactory");
-    return Factory.attach(FactoryDeployment.address);
+    const FactoryDeployment = await deployments.get("NXVProxyFactory");
+    const Factory = await hre.ethers.getContractAt("NXVProxyFactory", FactoryDeployment.address);
+    return Factory;
+};
+
+export const getFactoryAt = async (address: string) => {
+    const Factory = await hre.ethers.getContractAt("NXVProxyFactory", address);
+    return Factory;
 };
 
 export const getSimulateTxAccessor = async () => {
     const SimulateTxAccessorDeployment = await deployments.get("SimulateTxAccessor");
-    const SimulateTxAccessor = await hre.ethers.getContractFactory("SimulateTxAccessor");
-    return SimulateTxAccessor.attach(SimulateTxAccessorDeployment.address);
+    const SimulateTxAccessor = await hre.ethers.getContractAt("SimulateTxAccessor", SimulateTxAccessorDeployment.address);
+    return SimulateTxAccessor;
 };
 
 export const getMultiSend = async () => {
     const MultiSendDeployment = await deployments.get("MultiSend");
-    const MultiSend = await hre.ethers.getContractFactory("MultiSend");
-    return MultiSend.attach(MultiSendDeployment.address);
+    const MultiSend = await hre.ethers.getContractAt("MultiSend", MultiSendDeployment.address);
+    return MultiSend;
 };
 
 export const getMultiSendCallOnly = async () => {
     const MultiSendDeployment = await deployments.get("MultiSendCallOnly");
-    const MultiSend = await hre.ethers.getContractFactory("MultiSendCallOnly");
-    return MultiSend.attach(MultiSendDeployment.address);
+    const MultiSend = await hre.ethers.getContractAt("MultiSendCallOnly", MultiSendDeployment.address);
+    return MultiSend;
 };
 
 export const getCreateCall = async () => {
     const CreateCallDeployment = await deployments.get("CreateCall");
-    const CreateCall = await hre.ethers.getContractFactory("CreateCall");
-    return CreateCall.attach(CreateCallDeployment.address);
+    const CreateCall = await hre.ethers.getContractAt("CreateCall", CreateCallDeployment.address);
+    return CreateCall;
 };
 
 export const migrationContract = async () => {
     return await hre.ethers.getContractFactory("Migration");
+};
+
+export const migrationContractTo150 = async () => {
+    return await hre.ethers.getContractFactory("NXV150Migration");
+};
+
+export const migrationContractFrom100To110 = async () => {
+    return await hre.ethers.getContractFactory("NXVMigration");
 };
 
 export const getMock = async () => {
@@ -79,43 +108,83 @@ export const getMock = async () => {
     return await Mock.deploy();
 };
 
-export const getSafeTemplate = async (saltNumber: string = getRandomIntAsString()) => {
-    const singleton = await getSafeSingleton();
+export const getNXVTemplate = async (saltNumber: string = getRandomIntAsString()) => {
+    const singleton = await getNXVSingleton();
+    // console.log("singleton address: ", singleton.address);
+    const singletonAddress = await singleton.getAddress();
     const factory = await getFactory();
-    const template = await factory.callStatic.createProxyWithNonce(singleton.address, "0x", saltNumber);
-    await factory.createProxyWithNonce(singleton.address, "0x", saltNumber).then((tx: any) => tx.wait());
-    const Safe = await hre.ethers.getContractFactory(safeContractUnderTest());
-    return Safe.attach(template);
+    const template = await factory.createProxyWithNonce.staticCall(singletonAddress, "0x", saltNumber);
+    await factory.createProxyWithNonce(singletonAddress, "0x", saltNumber).then((tx: any) => tx.wait());
+    const NXV = await getNXVSingletonContractFromEnvVariable();
+    return NXV.attach(template) as NXV;
 };
 
-export const getSafeWithOwners = async (
+export const getNXVWithOwners = async (
     owners: string[],
     threshold?: number,
     fallbackHandler?: string,
     logGasUsage?: boolean,
     saltNumber: string = getRandomIntAsString(),
 ) => {
-    const template = await getSafeTemplate(saltNumber);
+    // console.log(owners)
+    const template = await getNXVTemplate(saltNumber);
+    // console.log(template)
     await logGas(
-        `Setup Safe with ${owners.length} owner(s)${fallbackHandler && fallbackHandler !== AddressZero ? " and fallback handler" : ""}`,
-        template.setup(owners, threshold || owners.length, AddressZero, "0x", fallbackHandler || AddressZero, AddressZero, 0, AddressZero),
+        `Setup NXV with ${owners.length} owner(s)${fallbackHandler && fallbackHandler !== AddressZero ? " and fallback handler" : ""}`,
+        template.setup(owners, threshold || owners.length, fallbackHandler || AddressZero),
         !logGasUsage,
     );
     return template;
 };
 
-export const getTokenCallbackHandler = async () => {
-    return (await defaultTokenCallbackHandlerContract()).attach((await defaultTokenCallbackHandlerDeployment()).address);
+export const getNXVWithSingleton = async (
+    singleton: NXV,
+    owners: string[],
+    threshold?: number,
+    fallbackHandler?: string,
+    saltNumber: string = getRandomIntAsString(),
+) => {
+    const factory = await getFactory();
+    const singletonAddress = await singleton.getAddress();
+    const template = await factory.createProxyWithNonce.staticCall(singletonAddress, "0x", saltNumber);
+    await factory.createProxyWithNonce(singletonAddress, "0x", saltNumber).then((tx: any) => tx.wait());
+    const NXVProxy = singleton.attach(template) as NXV;
+    await NXVProxy.setup(
+        owners,
+        threshold || owners.length,
+        fallbackHandler || AddressZero,
+    );
+
+    return NXVProxy;
 };
 
-export const getCompatFallbackHandler = async () => {
-    return (await compatFallbackHandlerContract()).attach((await compatFallbackHandlerDeployment()).address);
+export const getTokenCallbackHandler = async (address?: string) => {
+    const tokenCallbackHandler = await hre.ethers.getContractAt(
+        "TokenCallbackHandler",
+        address || (await defaultTokenCallbackHandlerDeployment()).address,
+    );
+
+    return tokenCallbackHandler;
 };
 
-export const getSafeProxyRuntimeCode = async () => {
-    const proxyArtifact = await hre.artifacts.readArtifact("SafeProxy");
+export const getCompatFallbackHandler = async (address?: string) => {
+    const fallbackHandler = await hre.ethers.getContractAt(
+        "CompatibilityFallbackHandler",
+        address || (await compatFallbackHandlerDeployment()).address,
+    );
+
+    return fallbackHandler;
+};
+
+export const getNXVProxyRuntimeCode = async () => {
+    const proxyArtifact = await hre.artifacts.readArtifact("NXVProxy");
 
     return proxyArtifact.deployedBytecode;
+};
+
+export const getDelegateCaller = async () => {
+    const DelegateCaller = await hre.ethers.getContractFactory("DelegateCaller");
+    return await DelegateCaller.deploy();
 };
 
 export const compile = async (source: string) => {
@@ -150,9 +219,14 @@ export const compile = async (source: string) => {
     };
 };
 
-export const deployContract = async (deployer: Wallet, source: string): Promise<Contract> => {
+export const deployContract = async (deployer: Signer, source: string): Promise<Contract> => {
     const output = await compile(source);
     const transaction = await deployer.sendTransaction({ data: output.data, gasLimit: 6000000 });
     const receipt = await transaction.wait();
+
+    if (!receipt?.contractAddress) {
+        throw Error("Could not deploy contract");
+    }
+
     return new Contract(receipt.contractAddress, output.interface, deployer);
 };
