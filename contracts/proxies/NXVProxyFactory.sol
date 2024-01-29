@@ -105,8 +105,22 @@ contract NXVProxyFactory {
         if (address(callback) != address(0)) callback.proxyCreated(proxy, _singleton, initializer, saltNonce);
     }
 
+    /**
+     * @notice Deploy a new proxy with `_singleton` singleton and `saltNonce` salt.
+     *         Optionally executes an initializer call to a new proxy and calls execTransaction() function with signatures.
+     * @param _singleton Address of singleton contract. Must be deployed at the time of execution.
+     * @param initializer Payload for a message call to be sent to a new proxy contract.
+     * @param saltNonce Nonce that will be used to generate the salt to calculate the address of the new proxy contract.
+     * @param to to address of Safe transaction.
+     * @param value Ether value of Safe transaction.
+     * @param data Data payload of Safe transaction.
+     * @param operation Operation type of Safe transaction.
+     * @param nonce Transaction nonce
+     * @param signatures Signature data that should be verified.
+     *                   Can be packed ECDSA signature ({bytes32 r}{bytes32 s}{uint8 v}), contract signature (EIP-1271) or approved hash.
+     */
     function createProxyWithTransaction(
-        address _singleton, 
+        address _singleton,
         bytes memory initializer,
         uint256 saltNonce,
         address to,
@@ -120,6 +134,12 @@ contract NXVProxyFactory {
         success = INXV(address(wallet)).execTransaction(to, value, data, operation, nonce, signatures);
     }
 
+    /**
+     * @notice Calculate proxy address with `_singleton` singleton, `initializer` initializer data, and `saltNonce` salt.
+     * @param _singleton Address of singleton contract. Must be deployed at the time of execution.
+     * @param initializer Payload for a message call to be sent to a new proxy contract.
+     * @param saltNonce Nonce that will be used to generate the salt to calculate the address of the new proxy contract.
+     */
     function calculateNXVAddress(
         address _singleton,
         bytes memory initializer,

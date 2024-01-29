@@ -22,8 +22,6 @@ import {SafeMath} from "./external/SafeMath.sol";
  *      - Transaction Hash: Hash of a transaction is calculated using the EIP-712 typed structured data hashing scheme.
  *      - Nonce: Each transaction should have a different nonce to prevent replay attacks.
  *      - Signature: A valid signature of an owner of the Safe for a transaction hash.
- *      - Guard: Guard is a contract that can execute pre- and post- transaction checks. Managed in `GuardManager`.
- *      - Modules: Modules are contracts that can be used to extend the write functionality of a Safe. Managed in `ModuleManager`.
  *      - Fallback: Fallback handler is a contract that can provide additional read-only functional for Safe. Managed in `FallbackManager`.
  *      Note: This version of the implementation contract doesn't emit events for the sake of gas efficiency and therefore requires a tracing node for indexing/
  *      For the events-based implementation see `SafeL2.sol`.
@@ -107,6 +105,7 @@ contract NXV is
      * @param value Ether value of Safe transaction.
      * @param data Data payload of Safe transaction.
      * @param operation Operation type of Safe transaction.
+     * @param nonce Transaction nonce
      * @param signatures Signature data that should be verified.
      *                   Can be packed ECDSA signature ({bytes32 r}{bytes32 s}{uint8 v}), contract signature (EIP-1271) or approved hash.
      * @return success Boolean indicating transaction's success.
