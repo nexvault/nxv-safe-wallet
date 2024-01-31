@@ -52,12 +52,11 @@ contract NXV is
      */
     event NXVSetup(address indexed initiator, address[] owners, uint256 threshold, address fallbackHandler);
     event ExecutionSuccess(bytes32 indexed txHash, uint256 indexed nonce);
-    // event ExecutionFailure(uint indexed transactionId);
+    event ExecutionFailure(bytes32 indexed txHash, uint256 indexed nonce);
 
     /*
      *  Storage
      */
-    mapping(bytes32 => bool) public txExists;
     mapping(uint256 => bool) public txNonces;
 
     // Mapping to keep track of all message hashes that have been approved by ALL REQUIRED owners
@@ -115,7 +114,6 @@ contract NXV is
 
         // "txHash" is the unique hash of transaction data
         bytes32 txHash = getTransactionHash(to, value, data, operation, nonce);
-        require(!txExists[txHash], "tx-exist");
 
         // two identical nonce only allow one to be executed
         // uint256 nonce = nonce;
@@ -124,12 +122,13 @@ contract NXV is
         checkSignatures(txHash, "", signatures);
 
         txNonces[nonce] = true;
-        txExists[txHash] = true;
 
         success = execute(to, value, data, operation, (gasleft() - 2500));
-        require(success, "call-failed");
-
-        emit ExecutionSuccess(txHash, nonce);
+        if (success) {
+            emit ExecutionSuccess(txHash, nonce);
+        } else {
+            emit ExecutionFailure(txHash, nonce);
+        }
     }
 
     /**

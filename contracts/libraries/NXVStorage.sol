@@ -15,7 +15,6 @@ contract NXVStorage {
     uint256 internal threshold;
 
     // uint256 internal nonce;
-    mapping(bytes32 => bool) internal txExists;
     mapping(uint256 => bool) internal txNonces;
 
     mapping(bytes32 => uint256) internal signedMessages;
