@@ -3,6 +3,9 @@ pragma solidity ^0.8.0;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
+/**
+ * @title ERC721Token - A test ERC721 token contract.
+ */
 contract MyNFT is ERC721 {
     uint public MAX_NFT_SUPPLY = 10000;
     uint256 public _tokenId;

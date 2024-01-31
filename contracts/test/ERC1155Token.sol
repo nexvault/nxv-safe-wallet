@@ -5,7 +5,7 @@ import {ERC1155TokenReceiver} from "../interfaces/ERC1155TokenReceiver.sol";
 import {SafeMath} from "../external/SafeMath.sol";
 
 /**
- * @title ERC1155Token - A test ERC1155 token contract
+ * @title ERC1155Token - A test ERC1155 token contract.
  */
 contract ERC1155Token {
     using SafeMath for uint256;

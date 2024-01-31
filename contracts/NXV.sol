@@ -14,17 +14,15 @@ import {ISignatureValidator, ISignatureValidatorConstants} from "./interfaces/IS
 import {SafeMath} from "./external/SafeMath.sol";
 
 /**
- * @title Safe - A multisignature wallet with support for confirmations using signed messages based on EIP-712.
+ * @title NXV - A multisignature wallet with support for confirmations using signed messages based on EIP-712.
  * @dev Most important concepts:
- *      - Threshold: Number of required confirmations for a Safe transaction.
- *      - Owners: List of addresses that control the Safe. They are the only ones that can add/remove owners, change the threshold and
+ *      - Threshold: Number of required confirmations for a NXV transaction.
+ *      - Owners: List of addresses that control the NXV. They are the only ones that can add/remove owners, change the threshold and
  *        approve transactions. Managed in `OwnerManager`.
  *      - Transaction Hash: Hash of a transaction is calculated using the EIP-712 typed structured data hashing scheme.
  *      - Nonce: Each transaction should have a different nonce to prevent replay attacks.
- *      - Signature: A valid signature of an owner of the Safe for a transaction hash.
- *      - Fallback: Fallback handler is a contract that can provide additional read-only functional for Safe. Managed in `FallbackManager`.
- *      Note: This version of the implementation contract doesn't emit events for the sake of gas efficiency and therefore requires a tracing node for indexing/
- *      For the events-based implementation see `SafeL2.sol`.
+ *      - Signature: A valid signature of an owner of the NXV for a transaction hash.
+ *      - Fallback: Fallback handler is a contract that can provide additional read-only functional for NXV. Managed in `FallbackManager`.
  * @author Stefan George - @Georgi87
  * @author Richard Meissner - @rmeissner
  */
@@ -69,18 +67,18 @@ contract NXV is
     constructor() {
         /**
          * By setting the threshold it is not possible to call setup anymore,
-         * so we create a Safe with 0 owners and threshold 1.
-         * This is an unusable Safe, perfect for the singleton
+         * so we create a NXV with 0 owners and threshold 1.
+         * This is an unusable NXV, perfect for the singleton
          */
         threshold = 1;
     }
 
     /**
-     * @notice Sets an initial storage of the Safe contract.
+     * @notice Sets an initial storage of the NXV contract.
      * @dev This method can only be called once.
      *      If a proxy was created without setting up, anyone can call setup and claim the proxy.
-     * @param _owners List of Safe owners.
-     * @param _threshold Number of required confirmations for a Safe transaction.
+     * @param _owners List of NXV owners.
+     * @param _threshold Number of required confirmations for a NXV transaction.
      * @param fallbackHandler Handler for fallback calls to this contract
      */
     function setup(
@@ -94,17 +92,12 @@ contract NXV is
         emit NXVSetup(msg.sender, _owners, _threshold, fallbackHandler);
     }
 
-    /** @notice Executes a `operation` {0: Call, 1: DelegateCall}} transaction to `to` with `value` (Native Currency)
-     *          and pays `gasPrice` * `gasLimit` in `gasToken` token to `refundReceiver`.
-     * @dev The fees are always transferred, even if the user transaction fails.
-     *      This method doesn't perform any sanity check of the transaction, such as:
-     *      - if the contract at `to` address has code or not
-     *      - if the `gasToken` is a contract or not
-     *      It is the responsibility of the caller to perform such checks.
-     * @param to to address of Safe transaction.
-     * @param value Ether value of Safe transaction.
-     * @param data Data payload of Safe transaction.
-     * @param operation Operation type of Safe transaction.
+    /**
+     * @notice Executes a `operation` {0: Call, 1: DelegateCall}} transaction to `to` with `value` (Native Currency)
+     * @param to to address of NXV transaction.
+     * @param value Ether value of NXV transaction.
+     * @param data Data payload of NXV transaction.
+     * @param operation Operation type of NXV transaction.
      * @param nonce Transaction nonce
      * @param signatures Signature data that should be verified.
      *                   Can be packed ECDSA signature ({bytes32 r}{bytes32 s}{uint8 v}), contract signature (EIP-1271) or approved hash.

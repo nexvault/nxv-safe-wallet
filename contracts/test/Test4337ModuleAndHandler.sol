@@ -23,7 +23,7 @@ interface ISafe {
     function execTransactionFromModule(address to, uint256 value, bytes memory data, uint8 operation) external returns (bool success);
 }
 
-/// @dev A Dummy 4337 Module/Handler for testing purposes
+/// @dev A Dummy 4337 Module/Handler for testing purposes.
 ///      ⚠️ ⚠️ ⚠️ DO NOT USE IN PRODUCTION ⚠️ ⚠️ ⚠️
 ///      The module does not perform ANY validation, it just executes validateUserOp and execTransaction
 ///      to perform the opcode level compliance by the bundler.

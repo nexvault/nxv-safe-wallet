@@ -13,7 +13,7 @@ import {IERC165} from "../interfaces/IERC165.sol";
 contract TokenCallbackHandler is ERC1155TokenReceiver, ERC777TokensRecipient, ERC721TokenReceiver, IERC165 {
     /**
      * @notice Handles ERC1155 Token callback.
-     * return Standardized onERC1155Received return value.
+     * @return Standardized onERC1155Received return value.
      */
     function onERC1155Received(address, address, uint256, uint256, bytes calldata) external pure override returns (bytes4) {
         return 0xf23a6e61;
@@ -21,7 +21,7 @@ contract TokenCallbackHandler is ERC1155TokenReceiver, ERC777TokensRecipient, ER
 
     /**
      * @notice Handles ERC1155 Token batch callback.
-     * return Standardized onERC1155BatchReceived return value.
+     * @return Standardized onERC1155BatchReceived return value.
      */
     function onERC1155BatchReceived(
         address,
@@ -35,7 +35,7 @@ contract TokenCallbackHandler is ERC1155TokenReceiver, ERC777TokensRecipient, ER
 
     /**
      * @notice Handles ERC721 Token callback.
-     *  return Standardized onERC721Received return value.
+     * @return Standardized onERC721Received return value.
      */
     function onERC721Received(address, address, uint256, bytes calldata) external pure override returns (bytes4) {
         return 0x150b7a02;
@@ -43,7 +43,7 @@ contract TokenCallbackHandler is ERC1155TokenReceiver, ERC777TokensRecipient, ER
 
     /**
      * @notice Handles ERC777 Token callback.
-     * return nothing (not standardized)
+     *         return nothing (not standardized)
      */
     function tokensReceived(address, address, address, uint256, bytes calldata, bytes calldata) external pure override {
         // We implement this for completeness, doesn't really have any value

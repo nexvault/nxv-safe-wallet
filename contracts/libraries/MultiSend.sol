@@ -25,7 +25,7 @@ contract MultiSend {
      *                     data as bytes.
      *                     see abi.encodePacked for more information on packed encoding
      * @notice This method is payable as delegatecalls keep the msg.value from the previous call
-     *         If the calling method (e.g. execTransaction) received ETH this would revert otherwise
+     *         If the calling method (e.g. execTransaction) received ETH this would revert otherwise.
      */
     function multiSend(bytes memory transactions) public payable {
         require(address(this) != MULTISEND_SINGLETON, "MultiSend should only be called via delegatecall");

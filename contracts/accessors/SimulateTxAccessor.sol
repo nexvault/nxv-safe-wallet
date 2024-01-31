@@ -17,7 +17,7 @@ contract SimulateTxAccessor is Executor {
 
     /**
      * @notice Modifier to make a function callable via delegatecall only.
-     * If the function is called via a regular call, it will revert.
+     *         If the function is called via a regular call, it will revert.
      */
     modifier onlyDelegateCall() {
         require(address(this) != accessorSingleton, "SimulateTxAccessor should only be called via delegatecall");

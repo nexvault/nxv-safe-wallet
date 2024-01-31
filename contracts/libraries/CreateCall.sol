@@ -8,7 +8,7 @@ pragma solidity >=0.7.0 <0.9.0;
  * @notice This contract provides functions for deploying a new contract using the create and create2 opcodes.
  */
 contract CreateCall {
-    /// @notice Emitted when a new contract is created
+    /// @notice Emitted when a new contract is created.
     event ContractCreation(address indexed newContract);
 
     /**

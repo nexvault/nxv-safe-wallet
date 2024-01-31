@@ -20,7 +20,7 @@ contract MultiSendCallOnly {
      * @notice The code is for most part the same as the normal MultiSend (to keep compatibility),
      *         but reverts if a transaction tries to use a delegatecall.
      * @notice This method is payable as delegatecalls keep the msg.value from the previous call
-     *         If the calling method (e.g. execTransaction) received ETH this would revert otherwise
+     *         If the calling method (e.g. execTransaction) received ETH this would revert otherwise.
      */
     function multiSend(bytes memory transactions) public payable {
         /* solhint-disable no-inline-assembly */

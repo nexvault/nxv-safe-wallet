@@ -2,7 +2,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 /**
- * @title DelegateCaller - A test contract that executes delegatecalls
+ * @title DelegateCaller - A test contract that executes delegatecalls.
  */
 contract DelegateCaller {
     /**
