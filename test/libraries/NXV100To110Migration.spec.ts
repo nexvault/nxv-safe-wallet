@@ -131,13 +131,13 @@ describe("NXV100To110Migration library", () => {
 
             const ownerCountBeforeMigration = await hre.ethers.provider.getStorage(NXVAddress, 2);
             const thresholdBeforeMigration = await hre.ethers.provider.getStorage(NXVAddress, 3);
-            const nonceBeforeMigration = await hre.ethers.provider.getStorage(NXVAddress, 5);
+            const nonceBeforeMigration = await hre.ethers.provider.getStorage(NXVAddress, 4);
 
             await expect(executeContractCallWithSigners(NXV100, migration, "migrateWithFallbackHandler", [], [user1], true));
 
             expect(await hre.ethers.provider.getStorage(NXVAddress, 2)).to.be.eq(ownerCountBeforeMigration);
             expect(await hre.ethers.provider.getStorage(NXVAddress, 3)).to.be.eq(thresholdBeforeMigration);
-            expect(await hre.ethers.provider.getStorage(NXVAddress, 5)).to.be.eq(nonceBeforeMigration);
+            expect(await hre.ethers.provider.getStorage(NXVAddress, 4)).to.be.eq(nonceBeforeMigration);
         });
     });
 });

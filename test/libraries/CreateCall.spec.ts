@@ -61,7 +61,7 @@ describe("CreateCall", () => {
             } = await setupTests();
 
             const tx = await buildContractCall(createCall, "performCreate", [1, testContract.data], nonce, true);
-            await expect(executeTxWithSigners(NXV, tx, [user1])).to.revertedWith("call-failed");
+            await expect(executeTxWithSigners(NXV, tx, [user1])).to.emit(NXV, "ExecutionFailure");
         });
 
         it("should successfully create contract and emit event", async () => {
@@ -158,7 +158,7 @@ describe("CreateCall", () => {
             } = await setupTests();
 
             const tx = await buildContractCall(createCall, "performCreate2", [1, testContract.data, salt], nonce, true);
-            await expect(executeTxWithSigners(NXV, tx, [user1])).to.revertedWith("call-failed");
+            await expect(executeTxWithSigners(NXV, tx, [user1])).to.emit(NXV, "ExecutionFailure");
         });
 
         it("should successfully create contract and emit event", async () => {

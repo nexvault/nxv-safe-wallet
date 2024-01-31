@@ -7,12 +7,10 @@ import { AddressOne } from "../../src/utils/constants";
 
 describe("OwnerManager", () => {
 
-    // beforeEach(async () => {
     const setupTests = deployments.createFixture(async ({ deployments }) => {
-        await deployments.fixture(); // 这将会运行所有的部署脚本
+        await deployments.fixture(); // this will run all the needed deployments
         const signers = await ethers.getSigners();
         const [user1] = signers;
-        // console.log(user1.address);
         return {
             nxv: await getNXVWithOwners([user1.address]),
             signers,
@@ -37,8 +35,9 @@ describe("OwnerManager", () => {
             } = await setupTests();
             const NXVAddress = await nxv.getAddress();
 
-            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [NXVAddress, 1], [user1])).to.revertedWith(
-                "call-failed",
+            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [NXVAddress, 1], [user1])).to.emit(
+                nxv,
+                "ExecutionFailure"
             );
         });
 
@@ -48,8 +47,9 @@ describe("OwnerManager", () => {
                 signers: [user1],
             } = await setupTests();
 
-            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [AddressOne, 1], [user1])).to.revertedWith(
-                "call-failed",
+            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [AddressOne, 1], [user1])).to.emit(
+                nxv,
+                "ExecutionFailure"
             );
         });
 
@@ -58,8 +58,9 @@ describe("OwnerManager", () => {
                 nxv,
                 signers: [user1],
             } = await setupTests();
-            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [AddressZero, 1], [user1])).to.revertedWith(
-                "call-failed",
+            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [AddressZero, 1], [user1])).to.emit(
+                nxv,
+                "ExecutionFailure"
             );
         });
 
@@ -70,8 +71,9 @@ describe("OwnerManager", () => {
             } = await setupTests();
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
 
-            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1])).to.revertedWith(
-                "call-failed",
+            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1])).to.emit(
+                nxv,
+                "ExecutionFailure"
             );
         });
 
@@ -80,8 +82,9 @@ describe("OwnerManager", () => {
                 nxv,
                 signers: [user1, user2],
             } = await setupTests();
-            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 0], [user1])).to.revertedWith(
-                "call-failed",
+            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 0], [user1])).to.emit(
+                nxv,
+                "ExecutionFailure"
             );
         });
 
@@ -90,8 +93,9 @@ describe("OwnerManager", () => {
                 nxv,
                 signers: [user1, user2],
             } = await setupTests();
-            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 3], [user1])).to.revertedWith(
-                "call-failed",
+            await expect(executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 3], [user1])).to.emit(
+                nxv,
+                "ExecutionFailure"
             );
         });
 
@@ -143,8 +147,9 @@ describe("OwnerManager", () => {
             } = await setupTests();
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
 
-            await expect(executeContractCallWithSigners(nxv, nxv, "removeOwner", [AddressOne, AddressOne, 1], [user1])).to.revertedWith(
-                "call-failed",
+            await expect(executeContractCallWithSigners(nxv, nxv, "removeOwner", [AddressOne, AddressOne, 1], [user1])).to.emit(
+                nxv,
+                "ExecutionFailure"
             );
         });
 
@@ -155,8 +160,9 @@ describe("OwnerManager", () => {
             } = await setupTests();
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
 
-            await expect(executeContractCallWithSigners(nxv, nxv, "removeOwner", [AddressOne, AddressZero, 1], [user1])).to.revertedWith(
-                "call-failed",
+            await expect(executeContractCallWithSigners(nxv, nxv, "removeOwner", [AddressOne, AddressZero, 1], [user1])).to.emit(
+                nxv,
+                "ExecutionFailure"
             );
         });
 
@@ -168,7 +174,7 @@ describe("OwnerManager", () => {
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "removeOwner", [AddressOne, user1.address, 1], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("Invalid prevOwner, owner pair provided - Invalid sentinel", async () => {
@@ -179,7 +185,7 @@ describe("OwnerManager", () => {
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "removeOwner", [AddressZero, user2.address, 1], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("Invalid prevOwner, owner pair provided - Invalid source", async () => {
@@ -190,7 +196,7 @@ describe("OwnerManager", () => {
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "removeOwner", [user1.address, user2.address, 1], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("can not remove owner and change threshold to larger number than new owner count", async () => {
@@ -201,7 +207,7 @@ describe("OwnerManager", () => {
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "removeOwner", [user2.address, user1.address, 2], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("can not remove owner and change threshold to 0", async () => {
@@ -212,7 +218,7 @@ describe("OwnerManager", () => {
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "removeOwner", [user2.address, user1.address, 0], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("can not remove owner only owner", async () => {
@@ -222,7 +228,7 @@ describe("OwnerManager", () => {
             } = await setupTests();
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "removeOwner", [AddressOne, user1.address, 1], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("emits event for removed owner and threshold if changed", async () => {
@@ -268,7 +274,7 @@ describe("OwnerManager", () => {
             await executeContractCallWithSigners(nxv, nxv, "addOwnerWithThreshold", [user2.address, 1], [user1]);
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "removeOwner", [user2.address, user1.address, 2], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
     });
 
@@ -290,7 +296,7 @@ describe("OwnerManager", () => {
 
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [AddressOne, user1.address, NXVAddress], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("can not swap in sentinel", async () => {
@@ -301,7 +307,7 @@ describe("OwnerManager", () => {
 
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [AddressOne, user1.address, AddressOne], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("can not swap in 0 Address", async () => {
@@ -312,7 +318,7 @@ describe("OwnerManager", () => {
 
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [AddressOne, user1.address, AddressZero], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("can not swap in existing owner", async () => {
@@ -323,7 +329,7 @@ describe("OwnerManager", () => {
 
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [AddressOne, user1.address, user1.address], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("can not swap out sentinel", async () => {
@@ -334,7 +340,7 @@ describe("OwnerManager", () => {
 
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [user1.address, AddressOne, user2.address], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("can not swap out 0 address", async () => {
@@ -345,7 +351,7 @@ describe("OwnerManager", () => {
 
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [user3.address, AddressZero, user2.address], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("Invalid prevOwner, owner pair provided - Invalid target", async () => {
@@ -355,7 +361,7 @@ describe("OwnerManager", () => {
             } = await setupTests();
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [AddressOne, user3.address, user2.address], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("Invalid prevOwner, owner pair provided - Invalid sentinel", async () => {
@@ -365,7 +371,7 @@ describe("OwnerManager", () => {
             } = await setupTests();
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [AddressZero, user1.address, user2.address], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("Invalid prevOwner, owner pair provided - Invalid source", async () => {
@@ -375,7 +381,7 @@ describe("OwnerManager", () => {
             } = await setupTests();
             await expect(
                 executeContractCallWithSigners(nxv, nxv, "swapOwner", [user2.address, user1.address, user2.address], [user1]),
-            ).to.revertedWith("call-failed");
+            ).to.emit(nxv, "ExecutionFailure");
         });
 
         it("emits event for replacing owner", async () => {

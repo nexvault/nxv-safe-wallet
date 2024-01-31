@@ -44,7 +44,7 @@ describe("MultiSendCallOnly", () => {
             const NXVTx = await buildMultiSendNXVTx(multiSend, txs, nonce);
 
             // await expect(executeTx(NXV, NXVTx, [await NXVApproveHash(user1, NXV, NXVTx, true)])).to.revertedWith("GS013");
-            await expect(executeTxWithSigners(NXV, NXVTx, [user1])).to.revertedWith("call-failed");
+            await expect(executeTxWithSigners(NXV, NXVTx, [user1])).to.emit(NXV, "ExecutionFailure");
         });
 
         it("Should fail when using delegatecall operation", async () => {
@@ -56,7 +56,7 @@ describe("MultiSendCallOnly", () => {
 
             const txs = [buildNXVTransaction({ to: user2.address, operation: 1, nonce: 0 })];
             const NXVTx = await buildMultiSendNXVTx(multiSend, txs, nonce);
-            await expect(executeTxWithSigners(NXV, NXVTx, [user1])).to.revertedWith("call-failed");
+            await expect(executeTxWithSigners(NXV, NXVTx, [user1])).to.emit(NXV, "ExecutionFailure");
         });
 
         it("Can execute empty multisend", async () => {
@@ -104,7 +104,7 @@ describe("MultiSendCallOnly", () => {
                 buildNXVTransaction({ to: user2.address, value: ethers.parseEther("1"), nonce: 0 }),
             ];
             const NXVTx = await buildMultiSendNXVTx(multiSend, txs, nonce);
-            await expect(executeTxWithSigners(NXV, NXVTx, [user1])).to.revertedWith("call-failed");
+            await expect(executeTxWithSigners(NXV, NXVTx, [user1])).to.emit(NXV, "ExecutionFailure");
 
             await expect(await hre.ethers.provider.getBalance(await NXV.getAddress())).to.eq(ethers.parseEther("1"));
             await expect(await hre.ethers.provider.getBalance(user2.address)).to.eq(userBalance);

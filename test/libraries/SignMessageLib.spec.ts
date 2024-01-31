@@ -60,7 +60,7 @@ describe("SignMessageLib", () => {
             } = await setupTests();
 
             const NXVAddress = await NXV.getAddress();
-            const SIGNED_MESSAGES_MAPPING_STORAGE_SLOT = 6;
+            const SIGNED_MESSAGES_MAPPING_STORAGE_SLOT = 5;
             const message = "no rugpull, funds must be safu";
             const eip191MessageHash = hre.ethers.hashMessage(message);
             const NXVInternalMsgHash = calculateNXVMessageHash(NXVAddress, hre.ethers.hashMessage(message), await chainId());
@@ -72,8 +72,8 @@ describe("SignMessageLib", () => {
             );
 
             const masterCopyAddressBeforeSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 0);
-            const ownerCountBeforeSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 3);
-            const thresholdBeforeSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 4);
+            const ownerCountBeforeSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 2);
+            const thresholdBeforeSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 3);
             // const nonceBeforeSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 5);
             const msgStorageSlotBeforeSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), expectedStorageSlot);
 
@@ -84,8 +84,8 @@ describe("SignMessageLib", () => {
             await executeContractCallWithSigners(NXV, lib, "signMessage", [eip191MessageHash], [user1, user2], true);
 
             const masterCopyAddressAfterSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 0);
-            const ownerCountAfterSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 3);
-            const thresholdAfterSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 4);
+            const ownerCountAfterSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 2);
+            const thresholdAfterSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 3);
             // const nonceAfterSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), 5);
             const msgStorageSlotAfterSigning = await hre.ethers.provider.getStorage(await NXV.getAddress(), expectedStorageSlot);
 

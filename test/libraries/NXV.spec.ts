@@ -13,20 +13,14 @@ const EXPECTED_LAYOUT = [
     { name: "ownerCount", slot: "2", offset: 0, type: "t_uint256" },
     { name: "threshold", slot: "3", offset: 0, type: "t_uint256" },
     {
-        name: "txExists",
-        slot: "4",
-        offset: 0,
-        type: "t_mapping(t_bytes32,t_bool)",
-    },
-    {
         name: "txNonces",
-        slot: "5",
+        slot: "4",
         offset: 0,
         type: "t_mapping(t_uint256,t_bool)",
     },
     {
         name: "signedMessages",
-        slot: "6",
+        slot: "5",
         offset: 0,
         type: "t_mapping(t_bytes32,t_uint256)",
     },
