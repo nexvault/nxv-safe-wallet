@@ -53,6 +53,11 @@ npx hardhat --network <network> local-verify
 
 Details can found in [src/tasks/deploy_contracts.ts](./src/tasks/deploy_contracts.ts).
 
+Security
+-----
+
+[Audit for v1.0.0 by Certik](./docs/REP-final-20240201T010322Z.pdf)
+
 License
 -----
 All smart contracts are released under LGPL-3.0
